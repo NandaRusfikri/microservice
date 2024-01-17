@@ -1,0 +1,40 @@
+syntax ="proto3";
+
+package models;
+//import "google/protobuf/empty.proto";
+option go_package = "/proto/user";
+
+message ModelProtoUser {
+    string id = 1;
+    string created_at = 2;
+    string updated_at = 3;
+    string fullname = 4;
+    string email = 5;
+    string password = 6;
+    bool is_active = 7;
+    int64 balance = 8;
+
+}
+
+message ResponseModelUserList {
+  repeated ModelProtoUser list = 1;
+}
+message CreateProductRequest {
+  string name = 1;
+  int64 quantity = 2;
+  int64 price = 3;
+  bool is_active = 4;
+}
+message UserByIDRequest {
+  string id = 1;
+}
+message CutBalanceRequest {
+  string user_id = 1;
+  int64 amount = 2;
+}
+
+
+service ServiceUserRPC {
+  rpc GetUserByIDRPC(UserByIDRequest) returns (ModelProtoUser);
+  rpc CutBalanceRPC(CutBalanceRequest) returns (ModelProtoUser);
+}
