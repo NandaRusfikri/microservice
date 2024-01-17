@@ -15,6 +15,7 @@ type ConfigApp struct {
 	Timezone    string `env:"TIMEZONE"`
 	Version     string `env:"VERSION"`
 	RestPort    int    `env:"REST_PORT"`
+	GRPCPort    int    `env:"GRPC_PORT"`
 	SwaggerHost string `env:"SWAGGER_HOST"`
 }
 type ConfigDatabase struct {
@@ -27,8 +28,6 @@ type ConfigDatabase struct {
 }
 
 type ConfigConsul struct {
-	ServiceName string `env:"SERVICE_NAME"`
-	ServicePort int    `env:"SERVICE_PORT"`
-	ConsulHost  string `env:"CONSUL_HOST"`
-	ConsulPort  int    `env:"CONSUL_PORT"`
+	ConsulHost string `env:"CONSUL_HOST"`
+	ConsulPort int    `env:"CONSUL_PORT"`
 }

@@ -21,8 +21,8 @@ import (
 	pb_user "service-user/proto/user"
 )
 
-func SetupGRPC(port int) error {
-	pkg.NewConsul(dto.CfgConsul)
+func NewGRPC() error {
+	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort)
 
 	db := database.SetupDatabase()
 	userRepository := repository.NewUserRepository(db)
@@ -33,10 +33,10 @@ func SetupGRPC(port int) error {
 	s := grpc.NewServer()
 	pb_user.RegisterServiceUserRPCServer(s, InitUser)
 
-	log.Println("Starting RPC server at", port)
-	l, err := net.Listen("tcp", fmt.Sprintf(":%v", port))
+	log.Println("Starting RPC server at", dto.CfgApp.GRPCPort)
+	l, err := net.Listen("tcp", fmt.Sprintf(":%v", dto.CfgApp.GRPCPort))
 	if err != nil {
-		log.Fatalf("could not listen to %s: %v", port, err)
+		log.Fatalf("could not listen to %v: %v", dto.CfgApp.GRPCPort, err)
 	}
 
 	return s.Serve(l)
@@ -45,8 +45,11 @@ func SetupGRPC(port int) error {
 func init() {
 	pkg.LoadConfig(".env")
 	rand.NewSource(time.Now().UnixNano())
-	dto.CfgApp.RestPort = rand.Intn(3001) + 1000
+	dto.CfgApp.RestPort = rand.Intn(4001) + 1000
 	fmt.Println("dto.CfgApp.RestPort ", dto.CfgApp.RestPort)
+	rand.NewSource(time.Now().UnixNano())
+	dto.CfgApp.GRPCPort = rand.Intn(4001) + 1000
+	fmt.Println("dto.CfgApp.GRPCPort ", dto.CfgApp.GRPCPort)
 }
 
 func NewRestAPI() {
