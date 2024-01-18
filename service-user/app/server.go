@@ -26,7 +26,7 @@ func NewGRPC() error {
 
 	db := database.SetupDatabase()
 	userRepository := repository.NewUserRepository(db)
-	userService := usecase.NewUserService(userRepository)
+	userService := usecase.NewUserUsecase(userRepository)
 
 	InitUser := userCtrl.NewHandlerRPCUser(userService)
 
@@ -48,7 +48,7 @@ func init() {
 	dto.CfgApp.RestPort = rand.Intn(4001) + 1000
 	fmt.Println("dto.CfgApp.RestPort ", dto.CfgApp.RestPort)
 	rand.NewSource(time.Now().UnixNano())
-	dto.CfgApp.GRPCPort = rand.Intn(4001) + 1000
+	dto.CfgApp.GRPCPort = 3002
 	fmt.Println("dto.CfgApp.GRPCPort ", dto.CfgApp.GRPCPort)
 }
 
@@ -58,7 +58,7 @@ func NewRestAPI() {
 	httpServer := pkg.InitHTTPGin()
 
 	userRepo := repository.NewUserRepository(db)
-	userUseCase := usecase.NewUserService(userRepo)
+	userUseCase := usecase.NewUserUsecase(userRepo)
 
 	userCtrl.NewUserControllerHTTP(httpServer, userUseCase)
 	defaultCtrl.InitDefaultController(httpServer)

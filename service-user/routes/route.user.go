@@ -11,7 +11,7 @@ import (
 func InitUserRoutes(db *gorm.DB, route *gin.Engine) {
 
 	UserRepository := repositorys.NewUserRepository(db)
-	UserService := services.NewUserService(UserRepository)
+	UserService := services.NewUserUsecase(UserRepository)
 
 	controller := handlers.NewUserControllerHTTP(UserService)
 	/**

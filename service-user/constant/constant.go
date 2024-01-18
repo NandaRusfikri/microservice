@@ -6,5 +6,5 @@ const (
 	DURATION_TOKEN        = 1440
 	TABLE_FORGOT_PASSWORD = "forgot_password"
 	TABLE_USERS           = "users"
-	TABLE_PRODUCTS        = "products"
+	TABLE_TRANSACTION     = "transaction"
 )

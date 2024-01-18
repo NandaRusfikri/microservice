@@ -31,6 +31,7 @@ func SetupDatabase() *gorm.DB {
 
 	err = db.AutoMigrate(
 		&entity.Users{},
+		&entity.Transaction{},
 	)
 
 	if data := db.Find(&entity.Users{}); data.RowsAffected < 1 {

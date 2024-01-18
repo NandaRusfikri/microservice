@@ -8,42 +8,35 @@ import (
 	"service-user/module/user/entity"
 )
 
-type UserRepository interface {
-	CreateUserRepository(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
-
-	DeleteUserRepository(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
-
-	ResultUserRepository(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
-
-	ResultsUserRepository() (*[]entity.Users, dto.SchemaError)
-
-	UpdateUserRepository(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
-
-	CutBalanceRepository(input *dto.SchemaCutBalanceRequest) (*entity.Users, dto.SchemaError)
+type UserRepositoryInterface interface {
+	Create(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
+	GetById(userId uint64) (entity.Users, dto.SchemaError)
+	GetList() (*[]entity.Users, dto.SchemaError)
+	Update(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
+	CutBalance(input dto.CutBalanceRequest) (entity.Users, dto.SchemaError)
 }
 
-type userRepositoryImplSQL struct {
+type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) UserRepository {
-	return &userRepositoryImplSQL{db: db}
+func NewUserRepository(db *gorm.DB) UserRepositoryInterface {
+	return &userRepository{db: db}
 }
 
-func (r *userRepositoryImplSQL) CreateUserRepository(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
+func (r *userRepository) Create(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
 
 	var students entity.Users
 	db := r.db.Model(&students)
-	errorCode := make(chan dto.SchemaError, 1)
 
 	checkUserExist := db.Debug().First(&students, "email = ?", input.Email)
 
 	if checkUserExist.RowsAffected > 0 {
-		errorCode <- dto.SchemaError{
+
+		return &students, dto.SchemaError{
 			StatusCode: http.StatusConflict,
 			Error:      errors.New("conflic"),
 		}
-		return &students, <-errorCode
 	}
 
 	students.Fullname = input.Fullname
@@ -54,103 +47,64 @@ func (r *userRepositoryImplSQL) CreateUserRepository(input *dto.SchemaUser) (*en
 	addNewUser := db.Debug().Create(&students).Commit()
 
 	if addNewUser.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
+		return &students, dto.SchemaError{
 			StatusCode: http.StatusForbidden,
 			Error:      errors.New("joe biden"),
 		}
-		return &students, <-errorCode
 	}
-	errorCode <- dto.SchemaError{}
-
-	return &students, <-errorCode
+	return &students, dto.SchemaError{}
 }
 
-func (r *userRepositoryImplSQL) DeleteUserRepository(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
+func (r *userRepository) GetById(userId uint64) (entity.Users, dto.SchemaError) {
 
-	var students entity.Users
-	db := r.db.Model(&students)
-	errorCode := make(chan dto.SchemaError, 1)
+	var user entity.Users
+	user.ID = userId
+	db := r.db.Model(&user)
 
-	checkUserId := db.Debug().First(&students)
+	resultUsers := db.Debug().First(&user)
 
-	if checkUserId.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
+	if resultUsers.RowsAffected < 1 {
+		return user, dto.SchemaError{
 			StatusCode: http.StatusNotFound,
 			Error:      errors.New("not found"),
 		}
-		return &students, <-errorCode
 	}
 
-	deleteUserId := db.Debug().Delete(&students)
-
-	if deleteUserId.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
-			StatusCode: http.StatusForbidden,
-			Error:      errors.New("joe biden"),
-		}
-		return &students, <-errorCode
-	}
-	errorCode <- dto.SchemaError{}
-
-	return &students, <-errorCode
+	return user, dto.SchemaError{}
 }
 
-func (r *userRepositoryImplSQL) ResultUserRepository(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
+func (r *userRepository) GetList() (*[]entity.Users, dto.SchemaError) {
 
-	var students entity.Users
-	db := r.db.Model(&students)
-	errorCode := make(chan dto.SchemaError, 1)
+	var user []entity.Users
+	db := r.db.Model(&user)
 
-	resultUsers := db.Debug().First(&students)
-
-	if resultUsers.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
-			StatusCode: http.StatusNotFound,
-			Error:      errors.New("not founf"),
-		}
-		return &students, <-errorCode
-	}
-	errorCode <- dto.SchemaError{}
-
-	return &students, <-errorCode
-}
-
-func (r *userRepositoryImplSQL) ResultsUserRepository() (*[]entity.Users, dto.SchemaError) {
-
-	var students []entity.Users
-	db := r.db.Model(&students)
-	errorCode := make(chan dto.SchemaError, 1)
-
-	resultsUsers := db.Debug().Find(&students)
+	resultsUsers := db.Debug().Find(&user)
 
 	if resultsUsers.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
+
+		return &user, dto.SchemaError{
 			StatusCode: http.StatusNotFound,
 			Error:      errors.New("not fpound"),
 		}
-		return &students, <-errorCode
 	}
 
-	errorCode <- dto.SchemaError{}
-	return &students, <-errorCode
+	return &user, dto.SchemaError{}
 }
 
-func (r *userRepositoryImplSQL) UpdateUserRepository(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
+func (r *userRepository) Update(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
 
 	var students entity.Users
 	db := r.db.Model(&students)
-	errorCode := make(chan dto.SchemaError, 1)
 
 	students.ID = input.ID
 
 	checkUserId := db.Debug().First(&students)
 
 	if checkUserId.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
+		return &students, dto.SchemaError{
 			StatusCode: http.StatusNotFound,
 			Error:      errors.New("not found"),
 		}
-		return &students, <-errorCode
 	}
 
 	students.Fullname = input.Fullname
@@ -162,54 +116,52 @@ func (r *userRepositoryImplSQL) UpdateUserRepository(input *dto.SchemaUser) (*en
 	updateUser := db.Debug().Where("id = ?", input.ID).Updates(students)
 
 	if updateUser.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
+		return &students, dto.SchemaError{
 			StatusCode: http.StatusForbidden,
 			Error:      errors.New("joe biden"),
 		}
-		return &students, <-errorCode
 	}
-	errorCode <- dto.SchemaError{}
-
-	return &students, <-errorCode
+	return &students, dto.SchemaError{}
 }
 
-func (r *userRepositoryImplSQL) CutBalanceRepository(input *dto.SchemaCutBalanceRequest) (*entity.Users, dto.SchemaError) {
+func (r *userRepository) CutBalance(input dto.CutBalanceRequest) (entity.Users, dto.SchemaError) {
 
-	var students entity.Users
-	db := r.db.Model(&students)
-	errorCode := make(chan dto.SchemaError, 1)
+	var user entity.Users
+	tx := r.db.Begin()
 
-	students.ID = input.UserId
-
-	checkUserId := db.First(&students)
+	checkUserId := tx.Model(entity.Users{}).Where("id = ? ", input.UserId).First(&user)
 
 	if checkUserId.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
+		return user, dto.SchemaError{
 			StatusCode: http.StatusNotFound,
 			Error:      errors.New("mot fpund"),
 		}
-		return &students, <-errorCode
-	}
-	if (students.Balance - input.Balance) > 0 {
-		students.Balance = students.Balance - input.Balance
-
-		updateUser := db.Where("id = ?", input.UserId).Updates(students)
-
-		if updateUser.RowsAffected < 1 {
-			errorCode <- dto.SchemaError{
-				StatusCode: http.StatusForbidden,
-				Error:      errors.New("joe biden"),
-			}
-			return &students, <-errorCode
-		}
-	} else {
-		errorCode <- dto.SchemaError{
-			StatusCode: http.StatusBadRequest,
-			Error:      errors.New("bad requts"),
-		}
-		return &students, <-errorCode
 	}
 
-	errorCode <- dto.SchemaError{}
-	return &students, <-errorCode
+	user.Balance = user.Balance - input.Balance
+
+	updateUser := tx.Where("id = ?", input.UserId).Updates(&user)
+
+	if updateUser.Error != nil {
+		return user, dto.SchemaError{
+			StatusCode: http.StatusForbidden,
+			Error:      updateUser.Error,
+		}
+	}
+
+	createTrx := tx.Create(&entity.Transaction{
+		UserId: user.ID,
+		Amount: (input.Balance * -1),
+		Type:   "OUT",
+	})
+	if createTrx.Error != nil {
+		tx.Rollback()
+		return user, dto.SchemaError{
+			StatusCode: http.StatusForbidden,
+			Error:      errors.New("joe biden"),
+		}
+	}
+	tx.Commit()
+
+	return user, dto.SchemaError{}
 }

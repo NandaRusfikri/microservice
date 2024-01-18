@@ -27,8 +27,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceUserRPCClient interface {
-	GetUserByIDRPC(ctx context.Context, in *UserByIDRequest, opts ...grpc.CallOption) (*ModelProtoUser, error)
-	CutBalanceRPC(ctx context.Context, in *CutBalanceRequest, opts ...grpc.CallOption) (*ModelProtoUser, error)
+	GetUserByIDRPC(ctx context.Context, in *GetByIDRequest, opts ...grpc.CallOption) (*User, error)
+	CutBalanceRPC(ctx context.Context, in *CutBalanceRequest, opts ...grpc.CallOption) (*CutBalanceResponse, error)
 }
 
 type serviceUserRPCClient struct {
@@ -39,8 +39,8 @@ func NewServiceUserRPCClient(cc grpc.ClientConnInterface) ServiceUserRPCClient {
 	return &serviceUserRPCClient{cc}
 }
 
-func (c *serviceUserRPCClient) GetUserByIDRPC(ctx context.Context, in *UserByIDRequest, opts ...grpc.CallOption) (*ModelProtoUser, error) {
-	out := new(ModelProtoUser)
+func (c *serviceUserRPCClient) GetUserByIDRPC(ctx context.Context, in *GetByIDRequest, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
 	err := c.cc.Invoke(ctx, ServiceUserRPC_GetUserByIDRPC_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -48,8 +48,8 @@ func (c *serviceUserRPCClient) GetUserByIDRPC(ctx context.Context, in *UserByIDR
 	return out, nil
 }
 
-func (c *serviceUserRPCClient) CutBalanceRPC(ctx context.Context, in *CutBalanceRequest, opts ...grpc.CallOption) (*ModelProtoUser, error) {
-	out := new(ModelProtoUser)
+func (c *serviceUserRPCClient) CutBalanceRPC(ctx context.Context, in *CutBalanceRequest, opts ...grpc.CallOption) (*CutBalanceResponse, error) {
+	out := new(CutBalanceResponse)
 	err := c.cc.Invoke(ctx, ServiceUserRPC_CutBalanceRPC_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -61,8 +61,8 @@ func (c *serviceUserRPCClient) CutBalanceRPC(ctx context.Context, in *CutBalance
 // All implementations must embed UnimplementedServiceUserRPCServer
 // for forward compatibility
 type ServiceUserRPCServer interface {
-	GetUserByIDRPC(context.Context, *UserByIDRequest) (*ModelProtoUser, error)
-	CutBalanceRPC(context.Context, *CutBalanceRequest) (*ModelProtoUser, error)
+	GetUserByIDRPC(context.Context, *GetByIDRequest) (*User, error)
+	CutBalanceRPC(context.Context, *CutBalanceRequest) (*CutBalanceResponse, error)
 	mustEmbedUnimplementedServiceUserRPCServer()
 }
 
@@ -70,10 +70,10 @@ type ServiceUserRPCServer interface {
 type UnimplementedServiceUserRPCServer struct {
 }
 
-func (UnimplementedServiceUserRPCServer) GetUserByIDRPC(context.Context, *UserByIDRequest) (*ModelProtoUser, error) {
+func (UnimplementedServiceUserRPCServer) GetUserByIDRPC(context.Context, *GetByIDRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByIDRPC not implemented")
 }
-func (UnimplementedServiceUserRPCServer) CutBalanceRPC(context.Context, *CutBalanceRequest) (*ModelProtoUser, error) {
+func (UnimplementedServiceUserRPCServer) CutBalanceRPC(context.Context, *CutBalanceRequest) (*CutBalanceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CutBalanceRPC not implemented")
 }
 func (UnimplementedServiceUserRPCServer) mustEmbedUnimplementedServiceUserRPCServer() {}
@@ -90,7 +90,7 @@ func RegisterServiceUserRPCServer(s grpc.ServiceRegistrar, srv ServiceUserRPCSer
 }
 
 func _ServiceUserRPC_GetUserByIDRPC_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserByIDRequest)
+	in := new(GetByIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func _ServiceUserRPC_GetUserByIDRPC_Handler(srv interface{}, ctx context.Context
 		FullMethod: ServiceUserRPC_GetUserByIDRPC_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceUserRPCServer).GetUserByIDRPC(ctx, req.(*UserByIDRequest))
+		return srv.(ServiceUserRPCServer).GetUserByIDRPC(ctx, req.(*GetByIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -1,34 +1,32 @@
 package usecase
 
 import (
+	"errors"
+	"fmt"
+	"go-micro.dev/v4/util/log"
+	"net/http"
 	"service-user/dto"
 	"service-user/module/user/entity"
 	repositorys "service-user/module/user/repository"
 )
 
 type ServicesUser interface {
-	CreateUserService(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
-
-	UpdateUserService(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
-
-	DeleteUserService(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
-
-	ResultUserService(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
-
-	ResultsUserService() (*[]entity.Users, dto.SchemaError)
-
-	CutBalanceService(input *dto.SchemaCutBalanceRequest) (*entity.Users, dto.SchemaError)
+	Create(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
+	Update(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
+	GetById(userId uint64) (entity.Users, dto.SchemaError)
+	GetList() (*[]entity.Users, dto.SchemaError)
+	CutBalance(input dto.CutBalanceRequest) (entity.Users, dto.SchemaError)
 }
 
-type serviceUser struct {
-	repository repositorys.UserRepository
+type userUsecase struct {
+	userRepository repositorys.UserRepositoryInterface
 }
 
-func NewUserService(repository repositorys.UserRepository) ServicesUser {
-	return &serviceUser{repository: repository}
+func NewUserUsecase(repository repositorys.UserRepositoryInterface) ServicesUser {
+	return &userUsecase{userRepository: repository}
 }
 
-func (s *serviceUser) CreateUserService(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
+func (s *userUsecase) Create(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
 
 	var student dto.SchemaUser
 	student.Fullname = input.Fullname
@@ -36,48 +34,49 @@ func (s *serviceUser) CreateUserService(input *dto.SchemaUser) (*entity.Users, d
 	student.Password = input.Password
 	student.Email = input.Email
 
-	res, err := s.repository.CreateUserRepository(&student)
+	res, err := s.userRepository.Create(&student)
 	return res, err
 }
 
-func (s *serviceUser) UpdateUserService(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
+func (s *userUsecase) Update(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
 
-	var student dto.SchemaUser
-	student.ID = input.ID
-	student.Fullname = input.Fullname
-	student.Password = input.Password
-	student.Email = input.Email
-	student.IsActive = input.IsActive
+	var user dto.SchemaUser
+	user.ID = input.ID
+	user.Fullname = input.Fullname
+	user.Password = input.Password
+	user.Email = input.Email
+	user.IsActive = input.IsActive
 
-	res, err := s.repository.UpdateUserRepository(&student)
+	res, err := s.userRepository.Update(&user)
 	return res, err
 }
 
-func (s *serviceUser) DeleteUserService(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
-
-	var student dto.SchemaUser
-	student.ID = input.ID
-
-	res, err := s.repository.DeleteUserRepository(&student)
+func (s *userUsecase) GetById(userId uint64) (entity.Users, dto.SchemaError) {
+	res, err := s.userRepository.GetById(userId)
 	return res, err
 }
 
-func (s *serviceUser) ResultUserService(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
-
-	var student dto.SchemaUser
-	student.ID = input.ID
-
-	res, err := s.repository.ResultUserRepository(&student)
+func (s *userUsecase) GetList() (*[]entity.Users, dto.SchemaError) {
+	res, err := s.userRepository.GetList()
 	return res, err
 }
 
-func (s *serviceUser) ResultsUserService() (*[]entity.Users, dto.SchemaError) {
+func (s *userUsecase) CutBalance(input dto.CutBalanceRequest) (entity.Users, dto.SchemaError) {
 
-	res, err := s.repository.ResultsUserRepository()
-	return res, err
-}
-
-func (s *serviceUser) CutBalanceService(input *dto.SchemaCutBalanceRequest) (*entity.Users, dto.SchemaError) {
-	res, err := s.repository.CutBalanceRepository(input)
-	return res, err
+	user, err := s.GetById(input.UserId)
+	if err.Error != nil {
+		log.Error("aaa", err.Error)
+		return user, err
+	}
+	fmt.Printf("%+v\n ", input)
+	if (user.Balance - input.Balance) < 0 {
+		if err.Error != nil {
+			return user, dto.SchemaError{
+				StatusCode: http.StatusForbidden,
+				Error:      errors.New("balance less"),
+			}
+		}
+	}
+	return s.userRepository.CutBalance(input)
+	//return dto.SchemaError{}
 }
