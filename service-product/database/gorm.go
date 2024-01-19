@@ -5,9 +5,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"service-user/dto"
-	"service-user/module/user/entity"
-	"service-user/pkg"
+	"service-product/dto"
+	"service-product/module/product/entity"
 )
 
 func SetupDatabase() *gorm.DB {
@@ -30,24 +29,22 @@ func SetupDatabase() *gorm.DB {
 	}
 
 	err = db.AutoMigrate(
-		&entity.Users{},
+		&entity.EntityProduct{},
 		&entity.Transaction{},
 	)
 
-	if data := db.Find(&entity.Users{}); data.RowsAffected < 1 {
+	if data := db.Find(&entity.EntityProduct{}); data.RowsAffected < 1 {
 
-		UserAdmin := entity.Users{
-			Fullname: "Super Admin",
-			Email:    "super.admin@gmail.com",
-			Password: pkg.HashPassword("12345678"),
-			Balance:  9999999,
+		UserAdmin := entity.EntityProduct{
+			Name:     "Sendal",
+			Price:    88,
+			Quantity: 9999999,
 		}
 
-		UserMalik := entity.Users{
-			Fullname: "Malik",
-			Email:    "malik@gmail.id",
-			Password: pkg.HashPassword("12345678"),
-			Balance:  9999999,
+		UserMalik := entity.EntityProduct{
+			Name:     "sepatu",
+			Price:    65,
+			Quantity: 9999999,
 		}
 		db.Create(&UserAdmin)
 		db.Create(&UserMalik)

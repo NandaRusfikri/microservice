@@ -78,5 +78,5 @@ func (s *userUsecase) CutBalance(input dto.CutBalanceRequest) (entity.Users, dto
 		}
 	}
 	return s.userRepository.CutBalance(input)
-	//return dto.SchemaError{}
+
 }

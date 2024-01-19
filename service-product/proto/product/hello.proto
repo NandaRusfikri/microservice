@@ -1,35 +1,16 @@
 syntax ="proto3";
 
 package models;
-import "google/protobuf/empty.proto";
 option go_package = "/proto/product";
 
-message Product {
-    string id = 1;
-    string name = 2;
-    int64 quantity = 3;
-    int64 price = 4;
-    bool is_active = 5;
-}
-
-message GetListResponse {
-    repeated Product list = 1;
-}
-message CreateRequest {
+message HelloRequest {
     string name = 1;
-    int64 quantity = 2;
-    int64 price = 3;
-    bool is_active = 4;
 }
 
-message GetByIdRequest {
-    string id = 1;
+message HelloReply {
+    string message = 1;
 }
 
-service ServiceProductRPC {
-    rpc GetById(GetByIdRequest) returns (Product) {}
-    rpc GetList(google.protobuf.Empty) returns (GetListResponse);
-    rpc Check(google.protobuf.Empty) returns (google.protobuf.Empty);
-    rpc Create(CreateRequest) returns (Product);
-    rpc Update(Product) returns (Product);
+service Greeter {
+    rpc Greet(HelloRequest) returns (HelloReply) {}
 }

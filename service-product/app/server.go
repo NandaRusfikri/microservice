@@ -2,36 +2,37 @@ package app
 
 import (
 	"fmt"
-	"math/rand"
-	"service-user/database"
-	"service-user/dto"
-	"time"
-
-	"net"
-	defaultCtrl "service-user/module/default/controller"
-	userCtrl "service-user/module/user/controller"
-
-	"service-user/module/user/repository"
-	"service-user/module/user/usecase"
-
 	"google.golang.org/grpc"
-
+	"google.golang.org/grpc/health"
+	hv1 "google.golang.org/grpc/health/grpc_health_v1"
 	"log"
-	"service-user/pkg"
-	pb_user "service-user/proto/user"
+	"math/rand"
+	"net"
+	"service-product/database"
+	"service-product/dto"
+	defaultCtrl "service-product/module/default/controller"
+	userCtrl "service-product/module/product/controller"
+	"service-product/module/product/repository"
+	"service-product/module/product/usecase"
+	"service-product/pkg"
+	pb_user "service-product/proto/product"
+	"time"
 )
 
 func NewGRPC() error {
 	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort)
 
 	db := database.SetupDatabase()
-	userRepository := repository.NewUserRepository(db)
-	userService := usecase.NewUserUsecase(userRepository)
+	userRepository := repository.NewProductRepositorySQL(db)
+	userService := usecase.NewServiceProduct(userRepository)
 
-	InitUser := userCtrl.NewHandlerRPCUser(userService)
+	InitUser := userCtrl.NewControllerProductRPC(userService)
 
 	s := grpc.NewServer()
-	pb_user.RegisterServiceUserRPCServer(s, InitUser)
+	healthServer := health.NewServer()
+	healthServer.SetServingStatus("", hv1.HealthCheckResponse_SERVING)
+	hv1.RegisterHealthServer(s, health.NewServer())
+	pb_user.RegisterServiceProductRPCServer(s, InitUser)
 
 	log.Println("Starting RPC server at", dto.CfgApp.GRPCPort)
 	l, err := net.Listen("tcp", fmt.Sprintf(":%v", dto.CfgApp.GRPCPort))
@@ -45,10 +46,11 @@ func NewGRPC() error {
 func init() {
 	pkg.LoadConfig(".env")
 	rand.NewSource(time.Now().UnixNano())
-	dto.CfgApp.RestPort = rand.Intn(4001) + 1000
+	//dto.CfgApp.RestPort = rand.Intn(4001) + 1000
+	dto.CfgApp.RestPort = 3002
 	fmt.Println("dto.CfgApp.RestPort ", dto.CfgApp.RestPort)
 	rand.NewSource(time.Now().UnixNano())
-	dto.CfgApp.GRPCPort = 3002
+	dto.CfgApp.GRPCPort = 3003
 	fmt.Println("dto.CfgApp.GRPCPort ", dto.CfgApp.GRPCPort)
 }
 
@@ -57,10 +59,10 @@ func NewRestAPI() {
 	db := database.SetupDatabase()
 	httpServer := pkg.InitHTTPGin()
 
-	userRepo := repository.NewUserRepository(db)
-	userUseCase := usecase.NewUserUsecase(userRepo)
+	userRepo := repository.NewProductRepositorySQL(db)
+	userUseCase := usecase.NewServiceProduct(userRepo)
 
-	userCtrl.NewUserControllerHTTP(httpServer, userUseCase)
+	userCtrl.NewControllerProductHTTP(httpServer, userUseCase)
 	defaultCtrl.InitDefaultController(httpServer)
 
 	err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))
