@@ -1,8 +1,8 @@
 package dto
 
-type ErrorResponse struct {
-	Code  int
-	Error error
+type SchemaError struct {
+	StatusCode int
+	Error      error
 }
 
 type APIResponse struct {

@@ -18,7 +18,7 @@ type productRepository struct {
 	db *gorm.DB
 }
 
-func NewProductRepositorySQL(db *gorm.DB) ProductRepositoryInterface {
+func NewRepository(db *gorm.DB) ProductRepositoryInterface {
 	return &productRepository{db: db}
 }
 

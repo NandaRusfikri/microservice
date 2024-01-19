@@ -19,11 +19,22 @@ import (
 	"time"
 )
 
+func init() {
+	pkg.LoadConfig(".env")
+	rand.NewSource(time.Now().UnixNano())
+	//dto.CfgApp.RestPort = rand.Intn(4001) + 1000
+	dto.CfgApp.RestPort = 3002
+	fmt.Println("dto.CfgApp.RestPort ", dto.CfgApp.RestPort)
+	rand.NewSource(time.Now().UnixNano())
+	dto.CfgApp.GRPCPort = 3003
+	fmt.Println("dto.CfgApp.GRPCPort ", dto.CfgApp.GRPCPort)
+}
+
 func NewGRPC() error {
 	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort)
 
 	db := database.SetupDatabase()
-	userRepository := repository.NewProductRepositorySQL(db)
+	userRepository := repository.NewRepository(db)
 	userService := usecase.NewServiceProduct(userRepository)
 
 	InitUser := userCtrl.NewControllerProductRPC(userService)
@@ -43,23 +54,12 @@ func NewGRPC() error {
 	return s.Serve(l)
 }
 
-func init() {
-	pkg.LoadConfig(".env")
-	rand.NewSource(time.Now().UnixNano())
-	//dto.CfgApp.RestPort = rand.Intn(4001) + 1000
-	dto.CfgApp.RestPort = 3002
-	fmt.Println("dto.CfgApp.RestPort ", dto.CfgApp.RestPort)
-	rand.NewSource(time.Now().UnixNano())
-	dto.CfgApp.GRPCPort = 3003
-	fmt.Println("dto.CfgApp.GRPCPort ", dto.CfgApp.GRPCPort)
-}
-
 func NewRestAPI() {
 
 	db := database.SetupDatabase()
 	httpServer := pkg.InitHTTPGin()
 
-	userRepo := repository.NewProductRepositorySQL(db)
+	userRepo := repository.NewRepository(db)
 	userUseCase := usecase.NewServiceProduct(userRepo)
 
 	userCtrl.NewControllerProductHTTP(httpServer, userUseCase)
