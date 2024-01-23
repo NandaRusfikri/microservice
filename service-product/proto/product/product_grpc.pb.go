@@ -20,11 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ServiceProductRPC_GetById_FullMethodName = "/models.ServiceProductRPC/GetById"
-	ServiceProductRPC_GetList_FullMethodName = "/models.ServiceProductRPC/GetList"
-	ServiceProductRPC_Check_FullMethodName   = "/models.ServiceProductRPC/Check"
-	ServiceProductRPC_Create_FullMethodName  = "/models.ServiceProductRPC/Create"
-	ServiceProductRPC_Update_FullMethodName  = "/models.ServiceProductRPC/Update"
+	ServiceProductRPC_GetById_FullMethodName = "/product.ServiceProductRPC/GetById"
+	ServiceProductRPC_GetList_FullMethodName = "/product.ServiceProductRPC/GetList"
+	ServiceProductRPC_Check_FullMethodName   = "/product.ServiceProductRPC/Check"
+	ServiceProductRPC_Create_FullMethodName  = "/product.ServiceProductRPC/Create"
+	ServiceProductRPC_Update_FullMethodName  = "/product.ServiceProductRPC/Update"
 )
 
 // ServiceProductRPCClient is the client API for ServiceProductRPC service.
@@ -229,7 +229,7 @@ func _ServiceProductRPC_Update_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ServiceProductRPC_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "models.ServiceProductRPC",
+	ServiceName: "product.ServiceProductRPC",
 	HandlerType: (*ServiceProductRPCServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

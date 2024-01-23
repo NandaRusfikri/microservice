@@ -1,6 +1,6 @@
 syntax ="proto3";
 
-package models;
+package product;
 import "google/protobuf/empty.proto";
 option go_package = "/proto/product";
 

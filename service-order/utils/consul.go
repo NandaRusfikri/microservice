@@ -16,8 +16,8 @@ func CallConsulFindService(service_name string) (dto.SchemaConsulCatalogService,
 	var ListSchemaConsul []dto.SchemaConsulCatalogService
 	headers := make(map[string]interface{})
 
-	URL := fmt.Sprintf("http://%s:%s/v1/catalog/service/%v", dto.CfgConsul.ConsulHost, dto.CfgConsul.ConsulPort, service_name)
-
+	URL := fmt.Sprintf("http://%v:%v/v1/catalog/service/%v", dto.CfgConsul.ConsulHost, dto.CfgConsul.ConsulPort, service_name)
+	fmt.Println(URL)
 	request := dto.CallAPIDto{
 		Method:      constant.HTTP_GET,
 		Url:         URL,
