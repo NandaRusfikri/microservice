@@ -4,6 +4,7 @@ import (
 	"fmt"
 	ConsulAPI "github.com/hashicorp/consul/api"
 	"service-product/dto"
+	"service-product/utils"
 )
 
 func NewConsul(serviceName string, servicePort int) {
@@ -16,14 +17,13 @@ func NewConsul(serviceName string, servicePort int) {
 		panic(err)
 	}
 
-	//address := utils.GetLocalIP().String()
-	address := "localhost"
+	address := utils.GetLocalIP().String()
 	fmt.Println("address ", address)
 
 	registration := &ConsulAPI.AgentServiceRegistration{
-		ID:      "IDNya",
+		ID:      serviceName,
 		Name:    serviceName,
-		Port:    dto.CfgApp.RestPort,
+		Port:    dto.CfgApp.GRPCPort,
 		Address: address,
 		Check: &ConsulAPI.AgentServiceCheck{
 			//GRPC:                           fmt.Sprintf("%s:%v/%s", "localhost", dto.CfgApp.GRPCPort, "grpc.health.v1.Health"),

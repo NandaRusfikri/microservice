@@ -8,13 +8,11 @@ import (
 )
 
 type EntityProduct struct {
-	//ID        string    `json:"id" gorm:"primary_key;"`
-	ID uint64 `gorm:"column:id;primaryKey;AUTO_INCREMENT" json:"id"`
-
-	Name      string    `json:"name,omitempty" gorm:"type:varchar(255);not null"`
-	Quantity  int64     `json:"quantity,omitempty" gorm:"type:int;default:0"`
+	ID        uint64    `gorm:"column:id;primaryKey;AUTO_INCREMENT" json:"id"`
+	Name      string    `gorm:"column:name" json:"name"`
+	Quantity  int64     `gorm:"column:quantity" json:"quantity"`
 	IsActive  bool      `gorm:"column:is_active;default:true" json:"is_active"`
-	Price     int64     `json:"price,omitempty" gorm:"column:price"`
+	Price     int64     `gorm:"column:price" json:"price"`
 	CreatedAt time.Time `gorm:"column:created_at;default:now()" json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
