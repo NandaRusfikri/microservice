@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/golang/protobuf/ptypes/empty"
-	"net/http"
 	"service-product/dto"
 	"service-product/module/product/usecase"
 	pb "service-product/proto/product"
@@ -26,28 +25,27 @@ func (controller *ProductControllerGRPC) Check(ctx context.Context, empty *empty
 	return empty, nil
 }
 
-func (controller *ProductControllerGRPC) GetById(ctx context.Context, param *pb.GetByIdRequest) (res *pb.Product, err error) {
+func (controller *ProductControllerGRPC) GetById(ctx context.Context, param *pb.GetByIdRequest) (*pb.Product, error) {
 
+	var res pb.Product
 	id, ErrParse := strconv.ParseUint(param.Id, 10, 64)
 	if ErrParse != nil {
-		return res, errors.New("Id must be number")
+		return nil, errors.New("Id must be number")
 	}
 
 	Product, errProduct := controller.service.GetByID(id)
 
-	switch errProduct.StatusCode {
-	case 500:
-		return res, errors.New("Internal Server Error")
-	case http.StatusNotFound:
-		return res, nil
-	default:
+	if errProduct.Error != nil {
+		return nil, errProduct.Error
+	} else {
 		res.Id = strconv.Itoa(int(Product.ID))
 		res.Name = Product.Name
 		res.Quantity = Product.Quantity
 		res.IsActive = Product.IsActive
 		res.Price = Product.Price
 	}
-	return res, nil
+
+	return &res, nil
 
 }
 
@@ -62,20 +60,16 @@ func (controller *ProductControllerGRPC) Create(ctx context.Context, param *pb.C
 	}
 	Create, err := controller.service.Create(&input)
 
-	switch err.StatusCode {
-	case 500:
-		return nil, errors.New("Internal Server Error")
-	case 409:
-		return nil, errors.New("Name Product already exist")
-	case 402:
-		return nil, errors.New("Create new Product account failed")
-	default:
+	if err.Error != nil {
+		return nil, err.Error
+	} else {
 		resp.Id = strconv.Itoa(int(Create.ID))
 		resp.Name = Create.Name
 		resp.Quantity = Create.Quantity
 		resp.IsActive = Create.IsActive
 		resp.Price = Create.Price
 	}
+
 	return &resp, nil
 
 }
@@ -85,12 +79,10 @@ func (controller *ProductControllerGRPC) GetList(ctx context.Context, empty *emp
 	var res pb.GetListResponse
 	ListProduct, err := controller.service.GetList()
 
-	var ListProto []*pb.Product
-
-	switch err.StatusCode {
-	case 500:
-		return nil, errors.New("Internal Server Error")
-	default:
+	if err.Error != nil {
+		return nil, err.Error
+	} else {
+		var ListProto []*pb.Product
 		for _, product := range ListProduct {
 			data := pb.Product{
 				Id:       strconv.FormatUint(product.ID, 10),
@@ -101,10 +93,8 @@ func (controller *ProductControllerGRPC) GetList(ctx context.Context, empty *emp
 			}
 			ListProto = append(ListProto, &data)
 		}
-
+		res.List = ListProto
 	}
-	res.List = ListProto
-
 	return &res, nil
 }
 
@@ -120,14 +110,9 @@ func (controller *ProductControllerGRPC) Update(ctx context.Context, req *pb.Pro
 
 	Update, err := controller.service.Update(&input)
 
-	switch err.StatusCode {
-	case 500:
-		return nil, errors.New("Internal Server Error")
-	case 404:
-		return nil, errors.New("Product data is not exist or deleted")
-	case 409:
-		return nil, errors.New("Update Product data failed")
-	default:
+	if err.Error != nil {
+		return nil, err.Error
+	} else {
 		resp.Id = strconv.FormatUint(Update.ID, 10)
 		resp.Name = Update.Name
 		resp.Price = Update.Price

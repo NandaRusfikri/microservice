@@ -22,12 +22,10 @@ import (
 func init() {
 	pkg.LoadConfig(".env")
 	rand.NewSource(time.Now().UnixNano())
-	//dto.CfgApp.RestPort = rand.Intn(4001) + 1000
-	dto.CfgApp.RestPort = 3002
-	fmt.Println("dto.CfgApp.RestPort ", dto.CfgApp.RestPort)
-	rand.NewSource(time.Now().UnixNano())
-	dto.CfgApp.GRPCPort = 3003
+	dto.CfgApp.RestPort = rand.Intn(10) + 4000
+	dto.CfgApp.GRPCPort = rand.Intn(10+1) + 4000
 	fmt.Println("dto.CfgApp.GRPCPort ", dto.CfgApp.GRPCPort)
+	fmt.Println("dto.CfgApp.RestPort ", dto.CfgApp.RestPort)
 }
 
 func NewGRPC() error {
