@@ -1,29 +1,23 @@
 syntax ="proto3";
 
-package models;
+package order;
 option go_package = "/proto/order";
 
 
-service ServiceOrderHandlerRPC {
-    //    rpc ListProductRPC(google.protobuf.Empty) returns (ResponseEntityOrderList);
-    rpc CreateOrderRPC(CreateOrderRequest) returns (ModelProtoOrder);
-    //    rpc UpdateProductRPC(ModelProtoProduct) returns (ModelProtoProduct);
-    //    rpc DeleteProductRPC(DeleteProductRequest) returns (google.protobuf.Empty);
+service ServiceOrderRPC {
+    rpc Create(CreateRequest) returns (Order);
 }
 
-message ModelProtoOrder {
+message Order {
     string id = 1;
     uint64 user_id = 2;
     uint64 product_id = 3;
     int64 amount = 4;
 }
-
-
-
-message ResponseEntityOrderList {
-    repeated ModelProtoOrder list = 1;
+message OrderListResponse {
+    repeated Order list = 1;
 }
-message CreateOrderRequest {
+message CreateRequest {
     int64 user_id = 1;
     int64 product_id = 2;
 
