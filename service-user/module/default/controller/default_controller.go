@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"service-user/constant"
 	"service-user/dto"
-	"service-user/util"
+	"service-user/utils"
 	"time"
 )
 
@@ -26,7 +26,7 @@ func (c *DefaultController) MainPage(ctx *gin.Context) {
 		"time_now":     time.Now(),
 		"rest_api":     fmt.Sprintf(":%v", dto.CfgApp.RestPort),
 	}
-	util.APIResponse(ctx, dto.APIResponse{
+	utils.APIResponse(ctx, dto.APIResponse{
 		Code:    200,
 		Message: "success",
 		Data:    jsonData,

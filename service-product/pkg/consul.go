@@ -12,7 +12,7 @@ func NewConsul(serviceName string, servicePort int) {
 	consulConf.Address = fmt.Sprintf("%v:%v", dto.CfgConsul.ConsulHost, dto.CfgConsul.ConsulPort)
 	consulConf.Scheme = "http"
 
-	client, err := ConsulAPI.NewClient(ConsulAPI.DefaultConfig())
+	client, err := ConsulAPI.NewClient(consulConf)
 	if err != nil {
 		panic(err)
 	}
@@ -23,7 +23,7 @@ func NewConsul(serviceName string, servicePort int) {
 	registration := &ConsulAPI.AgentServiceRegistration{
 		ID:      serviceName,
 		Name:    serviceName,
-		Port:    dto.CfgApp.GRPCPort,
+		Port:    servicePort,
 		Address: address,
 		Check: &ConsulAPI.AgentServiceCheck{
 			//GRPC:                           fmt.Sprintf("%s:%v/%s", "localhost", dto.CfgApp.GRPCPort, "grpc.health.v1.Health"),

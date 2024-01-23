@@ -29,7 +29,7 @@ func init() {
 }
 
 func NewGRPC() error {
-	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort)
+	pkg.NewConsul(dto.CfgApp.ServiceName+"GRPC", dto.CfgApp.GRPCPort)
 
 	db := database.SetupDatabase()
 	userRepository := repository.NewRepository(db)
@@ -43,7 +43,7 @@ func NewGRPC() error {
 	hv1.RegisterHealthServer(s, health.NewServer())
 	pb_user.RegisterServiceProductRPCServer(s, InitUser)
 
-	log.Println("Starting RPC server at", dto.CfgApp.GRPCPort)
+	log.Println("Starting GRPC server at", dto.CfgApp.GRPCPort)
 	l, err := net.Listen("tcp", fmt.Sprintf(":%v", dto.CfgApp.GRPCPort))
 	if err != nil {
 		log.Fatalf("could not listen to %v: %v", dto.CfgApp.GRPCPort, err)
@@ -63,6 +63,9 @@ func NewRestAPI() {
 	userCtrl.NewControllerProductHTTP(httpServer, userUseCase)
 	defaultCtrl.InitDefaultController(httpServer)
 
+	pkg.NewConsul(dto.CfgApp.ServiceName+"REST", dto.CfgApp.GRPCPort)
+
+	log.Println("Starting REST server at", dto.CfgApp.RestPort)
 	err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))
 	if err != nil {
 		panic(err)

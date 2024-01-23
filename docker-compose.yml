@@ -1,6 +1,21 @@
-version: '3'
-
+version: '3.9'
 services:
+  postgres:
+    image: postgres:latest
+    container_name: microservice-db
+    volumes:
+      - ./create-databases.sh:/docker-entrypoint-initdb.d/create-databases.sh
+    environment:
+      - POSTGRES_USER=nanda
+      - POSTGRES_PASSWORD=nanda
+      - POSTGRES_DB=service-user
+      - POSTGRES_DB2=service-product
+      - POSTGRES_DB3=service-order
+    ports:
+      - "5432:5432"
+    networks:
+      - microservice-nanda
+
   consul:
     image: hashicorp/consul:latest
     container_name: consul
@@ -9,8 +24,26 @@ services:
       - "8600:8600"  # Consul DNS
       - "8600:8600/udp"
     networks:
-      - consul-network
+      - microservice-nanda
 
+  service-user:
+    container_name: service-user
+    build:
+      context: ./service-user
+      dockerfile: Dockerfile
+    restart: always
+    init: true
+    ports:
+      - "3000:3050"
+    env_file:
+      - service-user/.env
+    environment:
+      - CONSUL_HOST=consul
+      - DB_HOST=postgres
+    networks:
+      - microservice-nanda
+    depends_on:
+      - postgres
 networks:
-  consul-network:
+  microservice-nanda:
     driver: bridge

@@ -34,6 +34,10 @@ func SetupDatabase() *gorm.DB {
 		&entity.Transaction{},
 	)
 
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	if data := db.Find(&entity.Users{}); data.RowsAffected < 1 {
 
 		UserAdmin := entity.Users{
@@ -51,10 +55,6 @@ func SetupDatabase() *gorm.DB {
 		}
 		db.Create(&UserAdmin)
 		db.Create(&UserMalik)
-	}
-
-	if err != nil {
-		log.Fatal(err.Error())
 	}
 
 	return db

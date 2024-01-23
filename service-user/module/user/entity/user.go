@@ -11,10 +11,10 @@ type Users struct {
 	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at"`
 	ID        uint64    `gorm:"column:id;primaryKey;AUTO_INCREMENT" json:"id"`
 	Fullname  string    `gorm:"column:fullname" json:"fullname"`
-	Email     string    `json:"email,omitempty" gorm:"type:varchar(255);unique;not null"`
+	Email     string    `gorm:"column:email" json:"email"`
 	Password  string    `gorm:"column:password" json:"password"`
-	IsActive  *bool     `json:"is_active,omitempty" gorm:"column:created_at;default:true"`
-	Balance   int64     `json:"balance,omitempty" gorm:"column:balance"`
+	IsActive  *bool     `gorm:"column:is_active;default:true" json:"is_active"`
+	Balance   int64     `gorm:"column:balance" json:"balance"`
 }
 
 func (entity *Users) TableName() string {

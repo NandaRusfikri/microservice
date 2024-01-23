@@ -4,7 +4,7 @@ import "service-user/app"
 
 func main() {
 
-	app.NewGRPC()
+	go app.NewGRPC()
 	app.NewRestAPI()
 
 }

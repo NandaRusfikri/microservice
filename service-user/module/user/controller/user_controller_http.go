@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"service-user/dto"
 	services "service-user/module/user/usecase"
-	"service-user/util"
+	"service-user/utils"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +29,7 @@ func (h *controllerUser) UserCreate(ctx *gin.Context) {
 
 	var input dto.SchemaUser
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Message: "request invalid " + err.Error(),
 			Code:    http.StatusBadRequest,
 		})
@@ -39,12 +39,12 @@ func (h *controllerUser) UserCreate(ctx *gin.Context) {
 	_, err := h.service.Create(&input)
 
 	if err.Error != nil {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Code:    err.StatusCode,
 			Message: err.Error.Error(),
 		})
 	} else {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Message: "Success",
 			Code:    http.StatusOK,
 		})
@@ -56,7 +56,7 @@ func (h *controllerUser) CutBalanceHandler(ctx *gin.Context) {
 
 	var input dto.CutBalanceRequest
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Message: "request invalid " + err.Error(),
 			Code:    http.StatusBadRequest,
 		})
@@ -65,12 +65,12 @@ func (h *controllerUser) CutBalanceHandler(ctx *gin.Context) {
 
 	user, err := h.service.CutBalance(input)
 	if err.Error != nil {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Code:    err.StatusCode,
 			Message: err.Error.Error(),
 		})
 	} else {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Message: "Success",
 			Code:    http.StatusOK,
 			Data:    user,
@@ -83,12 +83,12 @@ func (h *controllerUser) UserList(ctx *gin.Context) {
 	res, err := h.service.GetList()
 
 	if err.Error != nil {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Code:    err.StatusCode,
 			Message: err.Error.Error(),
 		})
 	} else {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Message: "Success",
 			Code:    http.StatusOK,
 			Data:    res,
@@ -101,7 +101,7 @@ func (h *controllerUser) UserUpdate(ctx *gin.Context) {
 	var input dto.SchemaUser
 	input.ID, _ = strconv.ParseUint(ctx.Param("id"), 10, 64)
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Message: "request invalid " + err.Error(),
 			Code:    http.StatusBadRequest,
 		})
@@ -111,12 +111,12 @@ func (h *controllerUser) UserUpdate(ctx *gin.Context) {
 	_, err := h.service.Update(&input)
 
 	if err.Error != nil {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Code:    err.StatusCode,
 			Message: err.Error.Error(),
 		})
 	} else {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Message: "Success",
 			Code:    http.StatusOK,
 		})
@@ -130,12 +130,12 @@ func (h *controllerUser) UserDetail(ctx *gin.Context) {
 	res, err := h.service.GetById(userID)
 
 	if err.Error != nil {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Code:    err.StatusCode,
 			Message: err.Error.Error(),
 		})
 	} else {
-		util.APIResponse(ctx, dto.APIResponse{
+		utils.APIResponse(ctx, dto.APIResponse{
 			Message: "Success",
 			Code:    http.StatusOK,
 			Data:    res,

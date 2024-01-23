@@ -3,11 +3,9 @@ package app
 import (
 	"fmt"
 	"math/rand"
+	"net"
 	"service-user/database"
 	"service-user/dto"
-	"time"
-
-	"net"
 	defaultCtrl "service-user/module/default/controller"
 	userCtrl "service-user/module/user/controller"
 
@@ -21,8 +19,18 @@ import (
 	pb_user "service-user/proto/user"
 )
 
+func init() {
+	pkg.LoadConfig(".env")
+	fmt.Printf("%+v\n", dto.CfgConsul)
+
+	min := 3000
+	max := 3050
+	dto.CfgApp.RestPort = rand.Intn(max-min) + min
+	dto.CfgApp.GRPCPort = rand.Intn(max-min) + (min + 1)
+}
+
 func NewGRPC() error {
-	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort)
+	pkg.NewConsul(dto.CfgApp.ServiceName+"GRPC", dto.CfgApp.GRPCPort)
 
 	db := database.SetupDatabase()
 	userRepository := repository.NewUserRepository(db)
@@ -33,23 +41,13 @@ func NewGRPC() error {
 	s := grpc.NewServer()
 	pb_user.RegisterServiceUserRPCServer(s, InitUser)
 
-	log.Println("Starting RPC server at", dto.CfgApp.GRPCPort)
+	log.Println("Starting GRPC server at", dto.CfgApp.GRPCPort)
 	l, err := net.Listen("tcp", fmt.Sprintf(":%v", dto.CfgApp.GRPCPort))
 	if err != nil {
 		log.Fatalf("could not listen to %v: %v", dto.CfgApp.GRPCPort, err)
 	}
 
 	return s.Serve(l)
-}
-
-func init() {
-	pkg.LoadConfig(".env")
-	rand.NewSource(time.Now().UnixNano())
-	dto.CfgApp.RestPort = rand.Intn(4001) + 1000
-	fmt.Println("dto.CfgApp.RestPort ", dto.CfgApp.RestPort)
-	rand.NewSource(time.Now().UnixNano())
-	dto.CfgApp.GRPCPort = 3002
-	fmt.Println("dto.CfgApp.GRPCPort ", dto.CfgApp.GRPCPort)
 }
 
 func NewRestAPI() {
@@ -63,6 +61,9 @@ func NewRestAPI() {
 	userCtrl.NewUserControllerHTTP(httpServer, userUseCase)
 	defaultCtrl.InitDefaultController(httpServer)
 
+	pkg.NewConsul(dto.CfgApp.ServiceName+"REST", dto.CfgApp.RestPort)
+
+	log.Println("Starting Rest API server at", dto.CfgApp.RestPort)
 	err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))
 	if err != nil {
 		panic(err)
