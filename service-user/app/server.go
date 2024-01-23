@@ -37,8 +37,10 @@ func NewGRPC() error {
 	userService := usecase.NewUserUsecase(userRepository)
 
 	InitUser := userCtrl.NewHandlerRPCUser(userService)
+	InitHealth := userCtrl.NewhealthCheck()
 
 	s := grpc.NewServer()
+	pb_user.RegisterHealthServer(s, InitHealth)
 	pb_user.RegisterServiceUserRPCServer(s, InitUser)
 
 	log.Println("Starting GRPC server at", dto.CfgApp.GRPCPort)
@@ -61,7 +63,7 @@ func NewRestAPI() {
 	userCtrl.NewUserControllerHTTP(httpServer, userUseCase)
 	defaultCtrl.InitDefaultController(httpServer)
 
-	pkg.NewConsul(dto.CfgApp.ServiceName+"REST", dto.CfgApp.RestPort)
+	//pkg.NewConsul(dto.CfgApp.ServiceName+"REST", dto.CfgApp.RestPort)
 
 	log.Println("Starting Rest API server at", dto.CfgApp.RestPort)
 	err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))

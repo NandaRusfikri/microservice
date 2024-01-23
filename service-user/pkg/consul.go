@@ -26,8 +26,8 @@ func NewConsul(serviceName string, servicePort int) {
 		Port:    servicePort,
 		Address: address,
 		Check: &ConsulAPI.AgentServiceCheck{
-			//GRPC:                           fmt.Sprintf("%s:%v/%s", "localhost", dto.CfgApp.GRPCPort, "grpc.health.v1.Health"),
-			HTTP:                           fmt.Sprintf("http://%s:%v", address, dto.CfgApp.RestPort),
+			GRPC: fmt.Sprintf("%s:%v/%v", address, dto.CfgApp.GRPCPort, "grpc.health.v1.Health"),
+			//HTTP:                           fmt.Sprintf("http://%s:%v", address, dto.CfgApp.RestPort),
 			Interval:                       "10s",
 			Timeout:                        "10s",
 			DeregisterCriticalServiceAfter: "5s",
