@@ -4,13 +4,10 @@ services:
     image: postgres:latest
     container_name: microservice-db
     volumes:
-      - ./create-databases.sh:/docker-entrypoint-initdb.d/create-databases.sh
+      - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
     environment:
       - POSTGRES_USER=nanda
       - POSTGRES_PASSWORD=nanda
-      - POSTGRES_DB=service-user
-      - POSTGRES_DB2=service-product
-      - POSTGRES_DB3=service-order
     ports:
       - "5432:5432"
     networks:

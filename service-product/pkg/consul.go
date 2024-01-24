@@ -7,7 +7,8 @@ import (
 	"service-product/utils"
 )
 
-func NewConsul(serviceName string, servicePort int) {
+func NewConsul(serviceName string, servicePort int, scheme string) {
+	fmt.Println("NewConsul scheme", scheme)
 	consulConf := ConsulAPI.DefaultConfig()
 	consulConf.Address = fmt.Sprintf("%v:%v", dto.CfgConsul.ConsulHost, dto.CfgConsul.ConsulPort)
 	consulConf.Scheme = "http"
@@ -18,20 +19,21 @@ func NewConsul(serviceName string, servicePort int) {
 	}
 
 	address := utils.GetLocalIP().String()
-	fmt.Println("address ", address)
-
 	registration := &ConsulAPI.AgentServiceRegistration{
-		ID:      serviceName,
-		Name:    serviceName,
+		ID:      serviceName + scheme,
+		Name:    serviceName + scheme,
 		Port:    servicePort,
 		Address: address,
 		Check: &ConsulAPI.AgentServiceCheck{
-			//GRPC:                           fmt.Sprintf("%s:%v/%s", "localhost", dto.CfgApp.GRPCPort, "grpc.health.v1.Health"),
-			HTTP:                           fmt.Sprintf("http://%s:%v", address, dto.CfgApp.RestPort),
 			Interval:                       "10s",
 			Timeout:                        "10s",
 			DeregisterCriticalServiceAfter: "5s",
 		},
+	}
+	if scheme == "GRPC" {
+		registration.Check.GRPC = fmt.Sprintf("%s:%v/%v", address, dto.CfgApp.GRPCPort, "grpc.health.v1.Health")
+	} else if scheme == "REST" {
+		registration.Check.HTTP = fmt.Sprintf("http://%s:%v", address, dto.CfgApp.RestPort)
 	}
 
 	err = client.Agent().ServiceRegister(registration)

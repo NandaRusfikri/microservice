@@ -21,7 +21,6 @@ import (
 
 func init() {
 	pkg.LoadConfig(".env")
-	fmt.Printf("%+v\n", dto.CfgConsul)
 
 	min := 3000
 	max := 3050
@@ -30,7 +29,7 @@ func init() {
 }
 
 func NewGRPC() error {
-	pkg.NewConsul(dto.CfgApp.ServiceName+"GRPC", dto.CfgApp.GRPCPort)
+	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "GRPC")
 
 	db := database.SetupDatabase()
 	userRepository := repository.NewUserRepository(db)
@@ -63,7 +62,7 @@ func NewRestAPI() {
 	userCtrl.NewUserControllerHTTP(httpServer, userUseCase)
 	defaultCtrl.InitDefaultController(httpServer)
 
-	//pkg.NewConsul(dto.CfgApp.ServiceName+"REST", dto.CfgApp.RestPort)
+	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.RestPort, "REST")
 
 	log.Println("Starting Rest API server at", dto.CfgApp.RestPort)
 	err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))

@@ -16,20 +16,19 @@ import (
 	"service-product/module/product/usecase"
 	"service-product/pkg"
 	pb_user "service-product/proto/product"
-	"time"
 )
 
 func init() {
 	pkg.LoadConfig(".env")
-	rand.NewSource(time.Now().UnixNano())
-	dto.CfgApp.RestPort = rand.Intn(10) + 4000
-	dto.CfgApp.GRPCPort = rand.Intn(10+1) + 4000
-	fmt.Println("dto.CfgApp.GRPCPort ", dto.CfgApp.GRPCPort)
-	fmt.Println("dto.CfgApp.RestPort ", dto.CfgApp.RestPort)
+
+	min := 3050
+	max := 3100
+	dto.CfgApp.RestPort = rand.Intn(max-min) + min
+	dto.CfgApp.GRPCPort = rand.Intn(max-min) + (min + 1)
 }
 
 func NewGRPC() error {
-	pkg.NewConsul(dto.CfgApp.ServiceName+"GRPC", dto.CfgApp.GRPCPort)
+	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "GRPC")
 
 	db := database.SetupDatabase()
 	userRepository := repository.NewRepository(db)
@@ -63,7 +62,7 @@ func NewRestAPI() {
 	userCtrl.NewControllerProductHTTP(httpServer, userUseCase)
 	defaultCtrl.InitDefaultController(httpServer)
 
-	pkg.NewConsul(dto.CfgApp.ServiceName+"REST", dto.CfgApp.GRPCPort)
+	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "REST")
 
 	log.Println("Starting REST server at", dto.CfgApp.RestPort)
 	err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))
