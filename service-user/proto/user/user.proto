@@ -38,6 +38,6 @@ message CutBalanceRequest {
 
 
 service ServiceUserRPC {
-  rpc GetUserByIDRPC(GetByIDRequest) returns (User);
-  rpc CutBalanceRPC(CutBalanceRequest) returns (CutBalanceResponse);
+  rpc GetById(GetByIDRequest) returns (User);
+  rpc CutBalance(CutBalanceRequest) returns (CutBalanceResponse);
 }

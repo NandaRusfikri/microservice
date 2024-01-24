@@ -28,13 +28,13 @@ func NewUserUsecase(repository repositorys.UserRepositoryInterface) ServicesUser
 
 func (s *userUsecase) Create(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
 
-	var student dto.SchemaUser
-	student.Fullname = input.Fullname
-	student.IsActive = input.IsActive
-	student.Password = input.Password
-	student.Email = input.Email
+	var dataUser dto.SchemaUser
+	dataUser.Fullname = input.Fullname
+	dataUser.IsActive = input.IsActive
+	dataUser.Password = input.Password
+	dataUser.Email = input.Email
 
-	res, err := s.userRepository.Create(&student)
+	res, err := s.userRepository.Create(&dataUser)
 	return res, err
 }
 
@@ -65,17 +65,16 @@ func (s *userUsecase) CutBalance(input dto.CutBalanceRequest) (entity.Users, dto
 
 	user, err := s.GetById(input.UserId)
 	if err.Error != nil {
-		log.Error("aaa", err.Error)
+		log.Error(err.Error)
 		return user, err
 	}
-	fmt.Printf("%+v\n ", input)
-	if (user.Balance - input.Balance) < 0 {
-		if err.Error != nil {
-			return user, dto.SchemaError{
-				StatusCode: http.StatusForbidden,
-				Error:      errors.New("balance less"),
-			}
+	fmt.Println("balance ", (user.Balance - input.Balance))
+	if (user.Balance - input.Balance) < 1 {
+		return user, dto.SchemaError{
+			StatusCode: http.StatusForbidden,
+			Error:      errors.New("balance more be  less"),
 		}
+
 	}
 	return s.userRepository.CutBalance(input)
 

@@ -19,16 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ServiceUserRPC_GetUserByIDRPC_FullMethodName = "/service_user.ServiceUserRPC/GetUserByIDRPC"
-	ServiceUserRPC_CutBalanceRPC_FullMethodName  = "/service_user.ServiceUserRPC/CutBalanceRPC"
+	ServiceUserRPC_GetById_FullMethodName    = "/service_user.ServiceUserRPC/GetById"
+	ServiceUserRPC_CutBalance_FullMethodName = "/service_user.ServiceUserRPC/CutBalance"
 )
 
 // ServiceUserRPCClient is the client API for ServiceUserRPC service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceUserRPCClient interface {
-	GetUserByIDRPC(ctx context.Context, in *GetByIDRequest, opts ...grpc.CallOption) (*User, error)
-	CutBalanceRPC(ctx context.Context, in *CutBalanceRequest, opts ...grpc.CallOption) (*CutBalanceResponse, error)
+	GetById(ctx context.Context, in *GetByIDRequest, opts ...grpc.CallOption) (*User, error)
+	CutBalance(ctx context.Context, in *CutBalanceRequest, opts ...grpc.CallOption) (*CutBalanceResponse, error)
 }
 
 type serviceUserRPCClient struct {
@@ -39,18 +39,18 @@ func NewServiceUserRPCClient(cc grpc.ClientConnInterface) ServiceUserRPCClient {
 	return &serviceUserRPCClient{cc}
 }
 
-func (c *serviceUserRPCClient) GetUserByIDRPC(ctx context.Context, in *GetByIDRequest, opts ...grpc.CallOption) (*User, error) {
+func (c *serviceUserRPCClient) GetById(ctx context.Context, in *GetByIDRequest, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, ServiceUserRPC_GetUserByIDRPC_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServiceUserRPC_GetById_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serviceUserRPCClient) CutBalanceRPC(ctx context.Context, in *CutBalanceRequest, opts ...grpc.CallOption) (*CutBalanceResponse, error) {
+func (c *serviceUserRPCClient) CutBalance(ctx context.Context, in *CutBalanceRequest, opts ...grpc.CallOption) (*CutBalanceResponse, error) {
 	out := new(CutBalanceResponse)
-	err := c.cc.Invoke(ctx, ServiceUserRPC_CutBalanceRPC_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServiceUserRPC_CutBalance_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +61,8 @@ func (c *serviceUserRPCClient) CutBalanceRPC(ctx context.Context, in *CutBalance
 // All implementations must embed UnimplementedServiceUserRPCServer
 // for forward compatibility
 type ServiceUserRPCServer interface {
-	GetUserByIDRPC(context.Context, *GetByIDRequest) (*User, error)
-	CutBalanceRPC(context.Context, *CutBalanceRequest) (*CutBalanceResponse, error)
+	GetById(context.Context, *GetByIDRequest) (*User, error)
+	CutBalance(context.Context, *CutBalanceRequest) (*CutBalanceResponse, error)
 	mustEmbedUnimplementedServiceUserRPCServer()
 }
 
@@ -70,11 +70,11 @@ type ServiceUserRPCServer interface {
 type UnimplementedServiceUserRPCServer struct {
 }
 
-func (UnimplementedServiceUserRPCServer) GetUserByIDRPC(context.Context, *GetByIDRequest) (*User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserByIDRPC not implemented")
+func (UnimplementedServiceUserRPCServer) GetById(context.Context, *GetByIDRequest) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetById not implemented")
 }
-func (UnimplementedServiceUserRPCServer) CutBalanceRPC(context.Context, *CutBalanceRequest) (*CutBalanceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CutBalanceRPC not implemented")
+func (UnimplementedServiceUserRPCServer) CutBalance(context.Context, *CutBalanceRequest) (*CutBalanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CutBalance not implemented")
 }
 func (UnimplementedServiceUserRPCServer) mustEmbedUnimplementedServiceUserRPCServer() {}
 
@@ -89,38 +89,38 @@ func RegisterServiceUserRPCServer(s grpc.ServiceRegistrar, srv ServiceUserRPCSer
 	s.RegisterService(&ServiceUserRPC_ServiceDesc, srv)
 }
 
-func _ServiceUserRPC_GetUserByIDRPC_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServiceUserRPC_GetById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetByIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceUserRPCServer).GetUserByIDRPC(ctx, in)
+		return srv.(ServiceUserRPCServer).GetById(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ServiceUserRPC_GetUserByIDRPC_FullMethodName,
+		FullMethod: ServiceUserRPC_GetById_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceUserRPCServer).GetUserByIDRPC(ctx, req.(*GetByIDRequest))
+		return srv.(ServiceUserRPCServer).GetById(ctx, req.(*GetByIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServiceUserRPC_CutBalanceRPC_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServiceUserRPC_CutBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CutBalanceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceUserRPCServer).CutBalanceRPC(ctx, in)
+		return srv.(ServiceUserRPCServer).CutBalance(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ServiceUserRPC_CutBalanceRPC_FullMethodName,
+		FullMethod: ServiceUserRPC_CutBalance_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceUserRPCServer).CutBalanceRPC(ctx, req.(*CutBalanceRequest))
+		return srv.(ServiceUserRPCServer).CutBalance(ctx, req.(*CutBalanceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -133,12 +133,12 @@ var ServiceUserRPC_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ServiceUserRPCServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetUserByIDRPC",
-			Handler:    _ServiceUserRPC_GetUserByIDRPC_Handler,
+			MethodName: "GetById",
+			Handler:    _ServiceUserRPC_GetById_Handler,
 		},
 		{
-			MethodName: "CutBalanceRPC",
-			Handler:    _ServiceUserRPC_CutBalanceRPC_Handler,
+			MethodName: "CutBalance",
+			Handler:    _ServiceUserRPC_CutBalance_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	"math/rand"
 	"net"
 	"service-user/database"
 	"service-user/dto"
@@ -22,10 +21,11 @@ import (
 func init() {
 	pkg.LoadConfig(".env")
 
-	min := 3000
-	max := 3050
-	dto.CfgApp.RestPort = rand.Intn(max-min) + min
-	dto.CfgApp.GRPCPort = rand.Intn(max-min) + (min + 1)
+	//min := 3000
+	//max := 3010
+	//dto.CfgApp.RestPort = rand.Intn(max-min) + min
+	//dto.CfgApp.GRPCPort = rand.Intn(max-min) + (min + 1)
+	dto.CfgApp.GRPCPort = 3006
 }
 
 func NewGRPC() error {

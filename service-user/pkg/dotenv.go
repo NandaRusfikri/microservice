@@ -4,6 +4,7 @@ import (
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"service-user/constant"
 	"service-user/dto"
 	"strconv"
 )
@@ -24,7 +25,7 @@ func LoadConfig(path string) {
 	}
 
 	dto.CfgApp = dto.ConfigApp{
-		ServiceName: os.Getenv("SERVICE_NAME"),
+		ServiceName: constant.SERVICE_NAME,
 		Timezone:    os.Getenv("TIMEZONE"),
 		Version:     os.Getenv("VERSION"),
 		SwaggerHost: os.Getenv("SWAGGER_HOST"),

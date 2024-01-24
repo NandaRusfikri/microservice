@@ -40,21 +40,24 @@ func SetupDatabase() *gorm.DB {
 
 	if data := db.Find(&entity.Users{}); data.RowsAffected < 1 {
 
-		UserAdmin := entity.Users{
+		db.Create(&entity.Users{
 			Fullname: "Super Admin",
 			Email:    "super.admin@gmail.com",
 			Password: pkg.HashPassword("12345678"),
 			Balance:  9999999,
-		}
-
-		UserMalik := entity.Users{
+		})
+		db.Create(&entity.Users{
 			Fullname: "Malik",
 			Email:    "malik@gmail.id",
 			Password: pkg.HashPassword("12345678"),
 			Balance:  9999999,
-		}
-		db.Create(&UserAdmin)
-		db.Create(&UserMalik)
+		})
+		db.Create(&entity.Users{
+			Fullname: "Yanti",
+			Email:    "yanti@gmail.id",
+			Password: pkg.HashPassword("12345678"),
+			Balance:  5,
+		})
 	}
 
 	return db
