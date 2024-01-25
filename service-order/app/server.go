@@ -2,10 +2,10 @@ package app
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	hv1 "google.golang.org/grpc/health/grpc_health_v1"
-	"log"
 	"math/rand"
 	"net"
 	"service-order/database"
@@ -24,13 +24,20 @@ func init() {
 	min := 3100
 	max := 3150
 	dto.CfgApp.RestPort = rand.Intn(max-min) + min
-	dto.CfgApp.GRPCPort = 5000
+	dto.CfgApp.GRPCPort = 6000
 }
 
 func NewGRPC() error {
 	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "GRPC")
 
 	kafka := pkg.NewKafka()
+
+	defer func() {
+		if err := kafka.Producer.Close(); err != nil {
+			log.Errorf("Unable to stop kafka producer: %v", err)
+			return
+		}
+	}()
 
 	db := database.SetupDatabase()
 	orderRepo := order_repo.NewOrderRepositorySQL(db)

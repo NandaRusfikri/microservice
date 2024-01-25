@@ -25,7 +25,7 @@ func NewConsul(serviceName string, servicePort int, scheme string) {
 		Port:    servicePort,
 		Address: address,
 		Check: &ConsulAPI.AgentServiceCheck{
-			Interval:                       "30s",
+			Interval:                       "10s",
 			Timeout:                        "10s",
 			DeregisterCriticalServiceAfter: "5s",
 		},

@@ -36,18 +36,22 @@ func NewKafka() *KafkaProducer {
 
 	if err != nil {
 		log.Errorf("Unable to create kafka producer got error %v", err)
-		return nil
+		//return
 	}
-	defer func() {
-		if err := producers.Close(); err != nil {
-			log.Errorf("Unable to stop kafka producer: %v", err)
-			return
-		}
-	}()
+	//defer func() {
+	//	if err := producers.Close(); err != nil {
+	//		log.Errorf("Unable to stop kafka producer: %v", err)
+	//		return
+	//	}
+	//}()
 
-	return &KafkaProducer{
+	kafka := &KafkaProducer{
 		Producer: producers,
 	}
+
+	//kafka.KirimPesan("sarama", "hola", 0)
+
+	return kafka
 }
 
 func (p *KafkaProducer) KirimPesan(topic, msg string, partition int32) error {
@@ -58,6 +62,7 @@ func (p *KafkaProducer) KirimPesan(topic, msg string, partition int32) error {
 		//Partition: partition,
 	}
 
+	//p.Producer.SendMessage(kafkaMsg)
 	partition, offset, err := p.Producer.SendMessage(kafkaMsg)
 	if err != nil {
 		log.Errorf("Send message error: %v", err)

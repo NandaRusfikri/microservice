@@ -37,18 +37,17 @@ func (s *orderService) Create(input *dto.SchemaOrder) (*entities.Order, dto.Resp
 	if Product.ID < 1 {
 		return nil, err
 	}
-	fmt.Println("oke")
-	ayam := s.Kafka.KirimPesan("sarama", "hola", 0)
-	if ayam != nil {
-		fmt.Println(ayam.Error())
-	}
 
-	fmt.Println("mantap")
 	product.ProductId = Product.ID
 	product.UserId = input.UserId
 	product.Amount = Product.Price
 
 	res, err := s.OrderRepository.Create(&product)
+
+	ayam := s.Kafka.KirimPesan("sarama", fmt.Sprintf("%v", res.ID), 1)
+	if ayam != nil {
+		fmt.Println(ayam.Error())
+	}
 	return res, err
 }
 
