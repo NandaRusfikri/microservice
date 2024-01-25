@@ -62,7 +62,7 @@ func NewRestAPI() {
 	userCtrl.NewUserControllerHTTP(httpServer, userUseCase)
 	defaultCtrl.InitDefaultController(httpServer)
 
-	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.RestPort, "REST")
+	//pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.RestPort, "REST")
 
 	log.Println("Starting Rest API server at", dto.CfgApp.RestPort)
 	err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))

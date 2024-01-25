@@ -8,7 +8,6 @@ import (
 )
 
 func NewConsul(serviceName string, servicePort int, scheme string) {
-	fmt.Println("NewConsul scheme", scheme)
 	consulConf := ConsulAPI.DefaultConfig()
 	consulConf.Address = fmt.Sprintf("%v:%v", dto.CfgConsul.ConsulHost, dto.CfgConsul.ConsulPort)
 	consulConf.Scheme = "http"
@@ -20,7 +19,7 @@ func NewConsul(serviceName string, servicePort int, scheme string) {
 
 	address := utils.GetLocalIP().String()
 	registration := &ConsulAPI.AgentServiceRegistration{
-		ID:      serviceName + scheme,
+		ID:      fmt.Sprintf("%v-%v-%v", serviceName, scheme, servicePort),
 		Name:    serviceName + scheme,
 		Port:    servicePort,
 		Address: address,

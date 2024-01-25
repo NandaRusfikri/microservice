@@ -21,8 +21,8 @@ import (
 func init() {
 	pkg.LoadConfig(".env")
 
-	min := 3050
-	max := 3100
+	min := 4000
+	max := 4100
 	dto.CfgApp.RestPort = rand.Intn(max-min) + min
 	dto.CfgApp.GRPCPort = rand.Intn(max-min) + (min + 1)
 }
