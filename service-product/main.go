@@ -6,7 +6,7 @@ import (
 
 func main() {
 
-	go app.NewGRPC()
-	app.NewRestAPI()
+	app.NewGRPC()
+	//app.NewRestAPI()
 
 }

@@ -3,8 +3,6 @@ package app
 import (
 	"fmt"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/health"
-	hv1 "google.golang.org/grpc/health/grpc_health_v1"
 	"log"
 	"math/rand"
 	"net"
@@ -15,6 +13,7 @@ import (
 	"service-product/module/product/repository"
 	"service-product/module/product/usecase"
 	"service-product/pkg"
+	pb_health "service-product/proto/health"
 	pb_user "service-product/proto/product"
 )
 
@@ -36,10 +35,11 @@ func NewGRPC() error {
 
 	InitUser := userCtrl.NewControllerProductRPC(userService)
 
+	InitHealth := userCtrl.NewhealthCheck()
+
 	s := grpc.NewServer()
-	healthServer := health.NewServer()
-	healthServer.SetServingStatus("", hv1.HealthCheckResponse_SERVING)
-	hv1.RegisterHealthServer(s, health.NewServer())
+	pb_health.RegisterHealthServer(s, InitHealth)
+
 	pb_user.RegisterServiceProductRPCServer(s, InitUser)
 
 	log.Println("Starting GRPC server at", dto.CfgApp.GRPCPort)

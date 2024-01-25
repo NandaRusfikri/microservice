@@ -22,7 +22,6 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	ServiceProductRPC_GetById_FullMethodName = "/product.ServiceProductRPC/GetById"
 	ServiceProductRPC_GetList_FullMethodName = "/product.ServiceProductRPC/GetList"
-	ServiceProductRPC_Check_FullMethodName   = "/product.ServiceProductRPC/Check"
 	ServiceProductRPC_Create_FullMethodName  = "/product.ServiceProductRPC/Create"
 	ServiceProductRPC_Update_FullMethodName  = "/product.ServiceProductRPC/Update"
 )
@@ -33,7 +32,6 @@ const (
 type ServiceProductRPCClient interface {
 	GetById(ctx context.Context, in *GetByIdRequest, opts ...grpc.CallOption) (*Product, error)
 	GetList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetListResponse, error)
-	Check(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*Product, error)
 	Update(ctx context.Context, in *Product, opts ...grpc.CallOption) (*Product, error)
 }
@@ -64,15 +62,6 @@ func (c *serviceProductRPCClient) GetList(ctx context.Context, in *emptypb.Empty
 	return out, nil
 }
 
-func (c *serviceProductRPCClient) Check(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, ServiceProductRPC_Check_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *serviceProductRPCClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*Product, error) {
 	out := new(Product)
 	err := c.cc.Invoke(ctx, ServiceProductRPC_Create_FullMethodName, in, out, opts...)
@@ -97,7 +86,6 @@ func (c *serviceProductRPCClient) Update(ctx context.Context, in *Product, opts 
 type ServiceProductRPCServer interface {
 	GetById(context.Context, *GetByIdRequest) (*Product, error)
 	GetList(context.Context, *emptypb.Empty) (*GetListResponse, error)
-	Check(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	Create(context.Context, *CreateRequest) (*Product, error)
 	Update(context.Context, *Product) (*Product, error)
 	mustEmbedUnimplementedServiceProductRPCServer()
@@ -112,9 +100,6 @@ func (UnimplementedServiceProductRPCServer) GetById(context.Context, *GetByIdReq
 }
 func (UnimplementedServiceProductRPCServer) GetList(context.Context, *emptypb.Empty) (*GetListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetList not implemented")
-}
-func (UnimplementedServiceProductRPCServer) Check(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Check not implemented")
 }
 func (UnimplementedServiceProductRPCServer) Create(context.Context, *CreateRequest) (*Product, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
@@ -171,24 +156,6 @@ func _ServiceProductRPC_GetList_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServiceProductRPC_Check_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServiceProductRPCServer).Check(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServiceProductRPC_Check_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceProductRPCServer).Check(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ServiceProductRPC_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateRequest)
 	if err := dec(in); err != nil {
@@ -239,10 +206,6 @@ var ServiceProductRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetList",
 			Handler:    _ServiceProductRPC_GetList_Handler,
-		},
-		{
-			MethodName: "Check",
-			Handler:    _ServiceProductRPC_Check_Handler,
 		},
 		{
 			MethodName: "Create",

@@ -29,7 +29,6 @@ message GetByIdRequest {
 service ServiceProductRPC {
     rpc GetById(GetByIdRequest) returns (Product) {}
     rpc GetList(google.protobuf.Empty) returns (GetListResponse);
-    rpc Check(google.protobuf.Empty) returns (google.protobuf.Empty);
     rpc Create(CreateRequest) returns (Product);
     rpc Update(Product) returns (Product);
 }

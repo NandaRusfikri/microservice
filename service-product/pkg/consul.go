@@ -20,7 +20,7 @@ func NewConsul(serviceName string, servicePort int, scheme string) {
 	address := utils.GetLocalIP().String()
 	registration := &ConsulAPI.AgentServiceRegistration{
 		ID:      fmt.Sprintf("%v-%v-%v", serviceName, scheme, servicePort),
-		Name:    serviceName + scheme,
+		Name:    serviceName,
 		Port:    servicePort,
 		Address: address,
 		Check: &ConsulAPI.AgentServiceCheck{
