@@ -10,7 +10,7 @@ type EntityProduct struct {
 	//ID        string    `json:"id" gorm:"primary_key;"`
 	ID uint64 `gorm:"column:id;primaryKey;AUTO_INCREMENT" json:"id"`
 
-	Name      string         `json:"name,omitempty" gorm:"type:varchar(255);not null"`
+	Name      string         `gorm:"column:name" json:"name"`
 	Quantity  int64          `json:"quantity,omitempty" gorm:"type:int;default:0"`
 	IsActive  bool           `json:"is_active,omitempty" gorm:"type:bool;default:false"`
 	Price     int64          `json:"price,omitempty" gorm:"column:price"`

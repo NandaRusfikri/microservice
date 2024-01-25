@@ -29,7 +29,7 @@ func SetupDatabase() *gorm.DB {
 	}
 
 	err = db.AutoMigrate(
-		&entity.EntityOrder{},
+		&entity.Order{},
 	)
 
 	if err != nil {

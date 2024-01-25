@@ -2,6 +2,7 @@ package constant
 
 const (
 	SERVICE_VERSION = "1.0.3"
+	SERVICE_NAME    = "ServiceOrder"
 	AUTHOR          = "NandaRusfikri"
 	TABLE_ORDER     = "order"
 

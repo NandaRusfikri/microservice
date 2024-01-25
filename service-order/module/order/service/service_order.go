@@ -2,22 +2,34 @@ package order
 
 import (
 	"context"
+	"fmt"
 	"service-order/dto"
-	orders "service-order/module/order"
+	repoorder "service-order/module/order"
 	"service-order/module/order/entity"
 	repoproduct "service-order/module/product/repository"
+	"service-order/pkg"
 )
 
 type orderService struct {
-	OrderRepository orders.OrderRepositoryInterface
-	OrderRepoRPC    repoproduct.ProductRepositoryGRPC
+	OrderRepository repoorder.RepositoryInterface
+	OrderRepoRPC    repoproduct.RepositoryGRPCInterface
+	Kafka           *pkg.KafkaProducer
 }
 
-func NewOrderService(repository orders.OrderRepositoryInterface, repoProduct repoproduct.ProductRepositoryGRPC) orders.OrderServiceInterface {
-	return &orderService{OrderRepository: repository, OrderRepoRPC: repoProduct}
+func NewOrderService(
+	repository repoorder.RepositoryInterface,
+	repoProduct repoproduct.RepositoryGRPCInterface,
+	kafka *pkg.KafkaProducer,
+) repoorder.OrderServiceInterface {
+	return &orderService{
+		OrderRepository: repository,
+		OrderRepoRPC:    repoProduct,
+		Kafka:           kafka,
+	}
+
 }
 
-func (s *orderService) Create(input *dto.SchemaOrder) (*entities.EntityOrder, dto.ResponseError) {
+func (s *orderService) Create(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError) {
 
 	var product dto.SchemaOrder
 
@@ -25,7 +37,13 @@ func (s *orderService) Create(input *dto.SchemaOrder) (*entities.EntityOrder, dt
 	if Product.ID < 1 {
 		return nil, err
 	}
+	fmt.Println("oke")
+	ayam := s.Kafka.KirimPesan("sarama", "hola", 0)
+	if ayam != nil {
+		fmt.Println(ayam.Error())
+	}
 
+	fmt.Println("mantap")
 	product.ProductId = Product.ID
 	product.UserId = input.UserId
 	product.Amount = Product.Price
@@ -34,7 +52,7 @@ func (s *orderService) Create(input *dto.SchemaOrder) (*entities.EntityOrder, dt
 	return res, err
 }
 
-func (s *orderService) GetById(input *dto.SchemaOrder) (*entities.EntityOrder, dto.ResponseError) {
+func (s *orderService) GetById(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError) {
 
 	var student dto.SchemaOrder
 	student.ID = input.ID
@@ -43,7 +61,7 @@ func (s *orderService) GetById(input *dto.SchemaOrder) (*entities.EntityOrder, d
 	return res, err
 }
 
-func (s *orderService) GetList() ([]*entities.EntityOrder, dto.ResponseError) {
+func (s *orderService) GetList() ([]*entities.Order, dto.ResponseError) {
 
 	res, err := s.OrderRepository.GetList()
 	return res, err

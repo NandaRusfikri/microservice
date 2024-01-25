@@ -13,7 +13,7 @@ import (
 	"strconv"
 )
 
-type ProductRepositoryGRPC interface {
+type RepositoryGRPCInterface interface {
 	FindProductByIdRepository(ctx context.Context, ProductId uint64) (entities.EntityProduct, dto.ResponseError)
 }
 
@@ -21,15 +21,15 @@ type orderRepositoryImplGRPC struct {
 	//db *gorm.DB
 }
 
-func NewOrderRepositoryGRPC() ProductRepositoryGRPC {
+func NewOrderRepositoryGRPC() RepositoryGRPCInterface {
 	return &orderRepositoryImplGRPC{}
 }
 
 func (r *orderRepositoryImplGRPC) FindProductByIdRepository(ctx context.Context, product_id uint64) (entities.EntityProduct, dto.ResponseError) {
-	ServiceProduct, _ := utils.CallConsulFindService("service-product")
+	ServiceProduct, _ := utils.CallConsulFindService("ServiceProduct")
 	var Product entities.EntityProduct
 	address := fmt.Sprintf("%v:%v", ServiceProduct.Address, ServiceProduct.ServicePort)
-	log.Info("GRPC DIAl : ", address)
+	log.Info("GRPC DIAl  : ", address)
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatal("could not connect to", address, err)

@@ -4,6 +4,7 @@ import (
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"service-order/constant"
 	"service-order/dto"
 	"strconv"
 )
@@ -24,10 +25,15 @@ func LoadConfig(path string) {
 	}
 
 	dto.CfgApp = dto.ConfigApp{
-		ServiceName: os.Getenv("SERVICE_NAME"),
+		ServiceName: constant.SERVICE_NAME,
 		Timezone:    os.Getenv("TIMEZONE"),
 		Version:     os.Getenv("VERSION"),
 		SwaggerHost: os.Getenv("SWAGGER_HOST"),
+	}
+	dto.CfgKafka = dto.ConfigKafka{
+		KafkaAddress:  os.Getenv("KAFKA_ADDRESS"),
+		KafkaUser:     os.Getenv("KAFKA_USER"),
+		KafkaPassword: os.Getenv("KAFKA_PASSWORD"),
 	}
 	dto.CfgApp.RestPort, _ = strconv.Atoi(os.Getenv("REST_PORT"))
 

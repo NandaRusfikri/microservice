@@ -5,16 +5,16 @@ import (
 	"service-order/module/order/entity"
 )
 
-type OrderRepositoryInterface interface {
-	Create(input *dto.SchemaOrder) (*entities.EntityOrder, dto.ResponseError)
-	GetById(input *dto.SchemaOrder) (*entities.EntityOrder, dto.ResponseError)
-	GetList() ([]*entities.EntityOrder, dto.ResponseError)
+type RepositoryInterface interface {
+	Create(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError)
+	GetById(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError)
+	GetList() ([]*entities.Order, dto.ResponseError)
 }
 
 type OrderServiceInterface interface {
-	Create(input *dto.SchemaOrder) (*entities.EntityOrder, dto.ResponseError)
+	Create(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError)
 
-	GetById(input *dto.SchemaOrder) (*entities.EntityOrder, dto.ResponseError)
+	GetById(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError)
 
-	GetList() ([]*entities.EntityOrder, dto.ResponseError)
+	GetList() ([]*entities.Order, dto.ResponseError)
 }
