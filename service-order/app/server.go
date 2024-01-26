@@ -15,6 +15,7 @@ import (
 	order_serv "service-order/module/order/service"
 	product_repo "service-order/module/product/repository"
 	"service-order/pkg"
+	"service-order/pkg/kafka"
 	pb_order "service-order/proto/order"
 )
 
@@ -30,7 +31,7 @@ func init() {
 func NewGRPC() error {
 	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "GRPC")
 
-	kafka := pkg.NewKafka()
+	kafka := kafka.NewKafka()
 
 	defer func() {
 		if err := kafka.Producer.Close(); err != nil {

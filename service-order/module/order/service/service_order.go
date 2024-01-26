@@ -7,19 +7,19 @@ import (
 	repoorder "service-order/module/order"
 	"service-order/module/order/entity"
 	repoproduct "service-order/module/product/repository"
-	"service-order/pkg"
+	"service-order/pkg/kafka"
 )
 
 type orderService struct {
 	OrderRepository repoorder.RepositoryInterface
 	OrderRepoRPC    repoproduct.RepositoryGRPCInterface
-	Kafka           *pkg.KafkaProducer
+	Kafka           *kafka.Producer
 }
 
 func NewOrderService(
 	repository repoorder.RepositoryInterface,
 	repoProduct repoproduct.RepositoryGRPCInterface,
-	kafka *pkg.KafkaProducer,
+	kafka *kafka.Producer,
 ) repoorder.OrderServiceInterface {
 	return &orderService{
 		OrderRepository: repository,
@@ -44,7 +44,7 @@ func (s *orderService) Create(input *dto.SchemaOrder) (*entities.Order, dto.Resp
 
 	res, err := s.OrderRepository.Create(&product)
 
-	ayam := s.Kafka.KirimPesan("sarama", fmt.Sprintf("%v", res.ID), 1)
+	ayam := s.Kafka.SendMessage("sarama", fmt.Sprintf("%v", res.ID), 1)
 	if ayam != nil {
 		fmt.Println(ayam.Error())
 	}
