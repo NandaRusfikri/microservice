@@ -7,10 +7,11 @@ import (
 	"time"
 )
 
-func NewKafka() *Producer {
+func NewKafkaProducer() *Producer {
 
 	address, config := getKafkaConfig()
 	CreateTopic("sarama")
+	CreateTopic("ayam")
 
 	producers, err := sarama.NewSyncProducer(address, config)
 
@@ -46,16 +47,36 @@ func CreateTopic(topic string) error {
 	return err
 }
 
+var (
+	//brokers  = ""
+	version  = ""
+	group    = "ServiceProduct"
+	assignor = ""
+	oldest   = true
+)
+
 func getKafkaConfig() ([]string, *sarama.Config) {
-	kafkaConfig := sarama.NewConfig()
-	kafkaConfig.Producer.Return.Successes = true
-	kafkaConfig.Net.WriteTimeout = 5 * time.Second
-	kafkaConfig.Producer.Retry.Max = 0
+
+	//version, err := sarama.ParseKafkaVersion(version)
+	//if err != nil {
+	//	log.Panicf("Error parsing Kafka version: %v", err)
+	//}
+
+	config := sarama.NewConfig()
+	config.Producer.Return.Successes = true
+	config.Net.WriteTimeout = 5 * time.Second
+	config.Producer.Retry.Max = 0
+	//config.Version = version
+
+	if oldest {
+		config.Consumer.Offsets.Initial = sarama.OffsetOldest
+	}
+	config.Consumer.Group.Rebalance.GroupStrategies = []sarama.BalanceStrategy{sarama.NewBalanceStrategyRange()}
 
 	if dto.CfgKafka.KafkaUser != "" {
-		kafkaConfig.Net.SASL.Enable = true
-		kafkaConfig.Net.SASL.User = dto.CfgKafka.KafkaUser
-		kafkaConfig.Net.SASL.Password = dto.CfgKafka.KafkaPassword
+		config.Net.SASL.Enable = true
+		config.Net.SASL.User = dto.CfgKafka.KafkaUser
+		config.Net.SASL.Password = dto.CfgKafka.KafkaPassword
 	}
-	return []string{dto.CfgKafka.KafkaAddress}, kafkaConfig
+	return []string{dto.CfgKafka.KafkaAddress}, config
 }

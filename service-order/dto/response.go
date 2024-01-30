@@ -6,3 +6,7 @@ type APIResponse struct {
 	Count   int64       `json:"count,omitempty"`
 	Data    interface{} `json:"data"`
 }
+type ResponseError struct {
+	Error      error
+	StatusCode int
+}

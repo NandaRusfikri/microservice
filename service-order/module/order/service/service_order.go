@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 	"fmt"
+	"service-order/constant"
 	"service-order/dto"
 	repoorder "service-order/module/order"
 	"service-order/module/order/entity"
@@ -44,10 +45,11 @@ func (s *orderService) Create(input *dto.SchemaOrder) (*entities.Order, dto.Resp
 
 	res, err := s.OrderRepository.Create(&product)
 
-	ayam := s.Kafka.SendMessage("sarama", fmt.Sprintf("%v", res.ID), 1)
+	ayam := s.Kafka.SendMessage(constant.TOPIC_PRODUCT, fmt.Sprintf("%v", res.ID), 1)
 	if ayam != nil {
 		fmt.Println(ayam.Error())
 	}
+
 	return res, err
 }
 

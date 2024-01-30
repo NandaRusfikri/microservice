@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -8,6 +9,7 @@ import (
 	hv1 "google.golang.org/grpc/health/grpc_health_v1"
 	"math/rand"
 	"net"
+	"service-order/constant"
 	"service-order/database"
 	"service-order/dto"
 	orderCtrl "service-order/module/order/controller"
@@ -31,21 +33,26 @@ func init() {
 func NewGRPC() error {
 	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "GRPC")
 
-	kafka := kafka.NewKafka()
+	kafkaProducer := kafka.NewKafkaProducer()
 
 	defer func() {
-		if err := kafka.Producer.Close(); err != nil {
+		if err := kafkaProducer.Producer.Close(); err != nil {
 			log.Errorf("Unable to stop kafka producer: %v", err)
 			return
 		}
 	}()
 
+	ctx := context.Background()
+
+	go kafka.NewKafkaConsumer(ctx, []string{constant.TOPIC_PRODUCT, constant.TOPIC_ORDER_REPLY})
+
 	db := database.SetupDatabase()
 	orderRepo := order_repo.NewOrderRepositorySQL(db)
 	productRepo := product_repo.NewOrderRepositoryGRPC()
-	orderService := order_serv.NewOrderService(orderRepo, productRepo, kafka)
+	orderService := order_serv.NewOrderService(orderRepo, productRepo, kafkaProducer)
 
 	InitServiceGRPC := orderCtrl.NewOrderControllerGRPC(orderService)
+	go orderCtrl.NewOrderControllerKafka(orderService)
 
 	s := grpc.NewServer()
 	healthServer := health.NewServer()
@@ -58,6 +65,12 @@ func NewGRPC() error {
 	if err != nil {
 		log.Fatalf("could not listen to %v: %v", dto.CfgApp.GRPCPort, err)
 	}
+	log.Println("ayama")
+
+	//sigChan := make(chan os.Signal, 1)
+	//signal.Notify(sigChan, syscall.SIGTSTP)
+	//<-sigChan
+	//os.Exit(0)
 
 	return s.Serve(l)
 }
@@ -66,7 +79,7 @@ func NewRestAPI() {
 
 	//db := database.SetupDatabase()
 	//httpServer := pkg.InitHTTPGin()
-	//kafka := pkg.NewKafka()
+	//kafka := pkg.NewKafkaProducer()
 	//
 	//orderRepo := order_repo.NewOrderRepositorySQL(db)
 	//productRepo := product_repo.NewOrderRepositoryGRPC()
