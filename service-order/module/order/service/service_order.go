@@ -53,12 +53,9 @@ func (s *orderService) Create(input *dto.SchemaOrder) (*entities.Order, dto.Resp
 	return res, err
 }
 
-func (s *orderService) GetById(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError) {
+func (s *orderService) GetById(orderId uint64) (*entities.Order, dto.ResponseError) {
 
-	var student dto.SchemaOrder
-	student.ID = input.ID
-
-	res, err := s.OrderRepository.GetById(&student)
+	res, err := s.OrderRepository.GetById(orderId)
 	return res, err
 }
 

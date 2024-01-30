@@ -45,10 +45,9 @@ func (h *OrderControllerRestAPI) Create(ctx *gin.Context) {
 
 func (h *OrderControllerRestAPI) GetById(ctx *gin.Context) {
 
-	var input dto.SchemaOrder
-	input.ID, _ = strconv.ParseInt(ctx.Param("id"), 10, 64)
+	orderId, _ := strconv.ParseUint(ctx.Param("id"), 10, 64)
 
-	res, err := h.OrderService.GetById(&input)
+	res, err := h.OrderService.GetById(orderId)
 
 	if err.Error != nil {
 		utils.APIResponse(ctx, dto.APIResponse{

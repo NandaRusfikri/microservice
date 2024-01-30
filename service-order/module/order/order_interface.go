@@ -7,14 +7,14 @@ import (
 
 type RepositoryInterface interface {
 	Create(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError)
-	GetById(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError)
+	GetById(orderId uint64) (*entities.Order, dto.ResponseError)
 	GetList() ([]*entities.Order, dto.ResponseError)
 }
 
 type OrderServiceInterface interface {
 	Create(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError)
 
-	GetById(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError)
+	GetById(orderId uint64) (*entities.Order, dto.ResponseError)
 
 	GetList() ([]*entities.Order, dto.ResponseError)
 }

@@ -37,12 +37,12 @@ func (r *orderRepository) Create(input *dto.SchemaOrder) (*entities.Order, dto.R
 	return &product, dto.ResponseError{}
 }
 
-func (r *orderRepository) GetById(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError) {
+func (r *orderRepository) GetById(orderId uint64) (*entities.Order, dto.ResponseError) {
 
 	var dataOrder entities.Order
 	db := r.db.Model(&dataOrder)
 
-	result := db.Debug().First(&dataOrder)
+	result := db.Debug().Model(&entities.Order{}).Where("id = ?", orderId).First(&dataOrder)
 
 	if result.Error != nil {
 		return nil, dto.ResponseError{

@@ -5,8 +5,6 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/health"
-	hv1 "google.golang.org/grpc/health/grpc_health_v1"
 	"math/rand"
 	"net"
 	"service-order/constant"
@@ -55,9 +53,6 @@ func NewGRPC() error {
 	go orderCtrl.NewOrderControllerKafka(orderService)
 
 	s := grpc.NewServer()
-	healthServer := health.NewServer()
-	healthServer.SetServingStatus("", hv1.HealthCheckResponse_SERVING)
-	hv1.RegisterHealthServer(s, health.NewServer())
 	pb_order.RegisterServiceOrderRPCServer(s, InitServiceGRPC)
 
 	log.Println("Starting GRPC server at", dto.CfgApp.GRPCPort)

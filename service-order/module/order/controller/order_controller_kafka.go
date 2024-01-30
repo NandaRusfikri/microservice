@@ -16,6 +16,8 @@ func ListenTopicProduct(orderService orders.OrderServiceInterface) {
 		select {
 		case data := <-constant.ChanTopicProduct:
 			fmt.Println("bebek ", data)
+			res, _ := orderService.GetById(57)
+			fmt.Printf("data bebek %+v\n", res)
 		}
 	}
 
