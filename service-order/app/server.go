@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -22,10 +23,13 @@ import (
 func init() {
 	pkg.LoadConfig(".env")
 
+	flags := flag.Int("grpc-port", 6000, "GRPC Port Service")
+	flag.Parse()
+
 	min := 3100
 	max := 3150
 	dto.CfgApp.RestPort = rand.Intn(max-min) + min
-	dto.CfgApp.GRPCPort = 6000
+	dto.CfgApp.GRPCPort = *flags
 }
 
 func NewGRPC() error {
@@ -42,7 +46,7 @@ func NewGRPC() error {
 
 	ctx := context.Background()
 
-	go kafka.NewKafkaConsumer(ctx, []string{constant.TOPIC_PRODUCT, constant.TOPIC_ORDER_REPLY})
+	go kafka.NewKafkaConsumer(ctx, []string{constant.TOPIC_PRODUCT_STOCK_UPDATE, constant.TOPIC_ORDER_REPLY})
 
 	db := database.SetupDatabase()
 	orderRepo := order_repo.NewOrderRepositorySQL(db)
@@ -50,7 +54,7 @@ func NewGRPC() error {
 	orderService := order_serv.NewOrderService(orderRepo, productRepo, kafkaProducer)
 
 	InitServiceGRPC := orderCtrl.NewOrderControllerGRPC(orderService)
-	go orderCtrl.NewOrderControllerKafka(orderService)
+	orderCtrl.NewOrderControllerKafka(orderService)
 
 	s := grpc.NewServer()
 	pb_order.RegisterServiceOrderRPCServer(s, InitServiceGRPC)
@@ -60,12 +64,6 @@ func NewGRPC() error {
 	if err != nil {
 		log.Fatalf("could not listen to %v: %v", dto.CfgApp.GRPCPort, err)
 	}
-	log.Println("ayama")
-
-	//sigChan := make(chan os.Signal, 1)
-	//signal.Notify(sigChan, syscall.SIGTSTP)
-	//<-sigChan
-	//os.Exit(0)
 
 	return s.Serve(l)
 }

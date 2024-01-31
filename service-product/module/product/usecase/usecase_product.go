@@ -7,10 +7,10 @@ import (
 )
 
 type ServiceProductInterface interface {
-	Create(input *dto.SchemaProduct) (*entity.EntityProduct, dto.SchemaError)
-	GetByID(id uint64) (entity.EntityProduct, dto.SchemaError)
-	GetList() ([]*entity.EntityProduct, dto.SchemaError)
-	Update(input *dto.SchemaProduct) (*entity.EntityProduct, dto.SchemaError)
+	Create(input *dto.SchemaProduct) (*entity.Product, dto.SchemaError)
+	GetByID(id uint64) (entity.Product, dto.SchemaError)
+	GetList() ([]*entity.Product, dto.SchemaError)
+	UpdateStock(input dto.UpdateStockRequest) (*entity.Product, dto.SchemaError)
 }
 
 type serviceProduct struct {
@@ -21,13 +21,13 @@ func NewServiceProduct(repository repository.ProductRepositoryInterface) *servic
 	return &serviceProduct{repository: repository}
 }
 
-func (s *serviceProduct) GetByID(id uint64) (entity.EntityProduct, dto.SchemaError) {
+func (s *serviceProduct) GetByID(id uint64) (entity.Product, dto.SchemaError) {
 
 	res, err := s.repository.GetById(id)
 	return res, err
 }
 
-func (s *serviceProduct) Create(input *dto.SchemaProduct) (*entity.EntityProduct, dto.SchemaError) {
+func (s *serviceProduct) Create(input *dto.SchemaProduct) (*entity.Product, dto.SchemaError) {
 
 	var product dto.SchemaProduct
 	product.Name = input.Name
@@ -39,26 +39,14 @@ func (s *serviceProduct) Create(input *dto.SchemaProduct) (*entity.EntityProduct
 	return res, err
 }
 
-func (s *serviceProduct) GetList() ([]*entity.EntityProduct, dto.SchemaError) {
+func (s *serviceProduct) GetList() ([]*entity.Product, dto.SchemaError) {
 
 	res, err := s.repository.GetList()
 	return res, err
 }
 
-func (s *serviceProduct) Update(input *dto.SchemaProduct) (*entity.EntityProduct, dto.SchemaError) {
+func (s *serviceProduct) UpdateStock(input dto.UpdateStockRequest) (*entity.Product, dto.SchemaError) {
 
-	Product, err := s.repository.GetById(input.ID)
-	if Product.ID < 1 {
-		return nil, dto.SchemaError{StatusCode: 404, Error: err.Error}
-	}
-
-	var dataProduct dto.SchemaProduct
-	dataProduct.ID = Product.ID
-	dataProduct.Name = input.Name
-	dataProduct.Quantity = input.Quantity
-	dataProduct.IsActive = input.IsActive
-	dataProduct.Price = input.Price
-
-	res, err := s.repository.Update(&dataProduct)
+	res, err := s.repository.UpdateStock(input)
 	return res, err
 }

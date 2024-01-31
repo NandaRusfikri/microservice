@@ -13,7 +13,10 @@ type Order struct {
 	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at"`
 	UserId    uint64    `gorm:"column:user_id" json:"user_id"`
 	ProductId uint64    `gorm:"column:product_id" json:"product_id"`
-	Amount    int64     `gorm:"column:amount" json:"amount"`
+	Price     uint64    `gorm:"column:price" json:"price"`
+	Quantity  uint64    `gorm:"column:quantity" json:"quantity"`
+	Amount    uint64    `gorm:"column:amount" json:"amount"`
+	State     string    `gorm:"column:state" json:"state"`
 }
 
 func (e *Order) TableName() string {

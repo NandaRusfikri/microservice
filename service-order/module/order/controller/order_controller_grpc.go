@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"service-order/dto"
 	orders "service-order/module/order"
 	pb_order "service-order/proto/order"
@@ -20,10 +21,12 @@ func NewOrderControllerGRPC(serviceCreate orders.OrderServiceInterface) *OrderCo
 func (h *OrderControllerGRPC) Create(ctx context.Context, param *pb_order.CreateRequest) (*pb_order.Order, error) {
 
 	var res pb_order.Order
-	input := dto.SchemaOrder{
+	input := dto.CreateOrderRequest{
 		UserId:    uint64(param.UserId),
 		ProductId: uint64(param.ProductId),
+		Quantity:  uint64(param.Quantity),
 	}
+	fmt.Println("input ", input)
 	Create, err := h.OrderService.Create(&input)
 
 	if err.Error != nil {

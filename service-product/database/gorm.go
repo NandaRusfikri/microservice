@@ -29,22 +29,22 @@ func SetupDatabase() *gorm.DB {
 	}
 
 	err = db.AutoMigrate(
-		&entity.EntityProduct{},
+		&entity.Product{},
 		&entity.Transaction{},
 	)
 
-	if data := db.Find(&entity.EntityProduct{}); data.RowsAffected < 1 {
+	if data := db.Find(&entity.Product{}); data.RowsAffected < 1 {
 
-		UserAdmin := entity.EntityProduct{
-			Name:     "Sendal",
-			Price:    88,
-			Quantity: 9999999,
+		UserAdmin := entity.Product{
+			Name:  "Sendal",
+			Price: 88,
+			Stock: 9999999,
 		}
 
-		UserMalik := entity.EntityProduct{
-			Name:     "sepatu",
-			Price:    65,
-			Quantity: 9999999,
+		UserMalik := entity.Product{
+			Name:  "sepatu",
+			Price: 65,
+			Stock: 9999999,
 		}
 		db.Create(&UserAdmin)
 		db.Create(&UserMalik)

@@ -30,6 +30,11 @@ func LoadConfig(path string) {
 		Version:     os.Getenv("VERSION"),
 		SwaggerHost: os.Getenv("SWAGGER_HOST"),
 	}
+	dto.CfgKafka = dto.ConfigKafka{
+		KafkaAddress:  os.Getenv("KAFKA_ADDRESS"),
+		KafkaUser:     os.Getenv("KAFKA_USER"),
+		KafkaPassword: os.Getenv("KAFKA_PASSWORD"),
+	}
 	dto.CfgApp.RestPort, _ = strconv.Atoi(os.Getenv("REST_PORT"))
 
 	dto.CfgConsul.ConsulHost = os.Getenv("CONSUL_HOST")

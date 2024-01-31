@@ -84,11 +84,11 @@ func (controller *ProductControllerHTTP) GetList(ctx *gin.Context) {
 
 func (controller *ProductControllerHTTP) Update(ctx *gin.Context) {
 
-	var input dto.SchemaProduct
-	input.ID, _ = strconv.ParseUint(ctx.Param("id"), 10, 64)
+	var input dto.UpdateStockRequest
+	input.ProductId, _ = strconv.ParseUint(ctx.Param("id"), 10, 64)
 	ctx.ShouldBindJSON(&input)
 
-	_, err := controller.service.Update(&input)
+	_, err := controller.service.UpdateStock(input)
 
 	if err.Error != nil {
 		utils.APIResponse(ctx, dto.APIResponse{

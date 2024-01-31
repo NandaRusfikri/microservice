@@ -8,10 +8,10 @@ import (
 )
 
 type ProductRepositoryInterface interface {
-	Create(input *dto.SchemaProduct) (*entity.EntityProduct, dto.SchemaError)
-	GetById(id uint64) (entity.EntityProduct, dto.SchemaError)
-	GetList() ([]*entity.EntityProduct, dto.SchemaError)
-	Update(input *dto.SchemaProduct) (*entity.EntityProduct, dto.SchemaError)
+	Create(input *dto.SchemaProduct) (*entity.Product, dto.SchemaError)
+	GetById(id uint64) (entity.Product, dto.SchemaError)
+	GetList() ([]*entity.Product, dto.SchemaError)
+	UpdateStock(input dto.UpdateStockRequest) (*entity.Product, dto.SchemaError)
 }
 
 type productRepository struct {
@@ -22,9 +22,9 @@ func NewRepository(db *gorm.DB) ProductRepositoryInterface {
 	return &productRepository{db: db}
 }
 
-func (r *productRepository) Create(input *dto.SchemaProduct) (*entity.EntityProduct, dto.SchemaError) {
+func (r *productRepository) Create(input *dto.SchemaProduct) (*entity.Product, dto.SchemaError) {
 
-	var product entity.EntityProduct
+	var product entity.Product
 	db := r.db.Model(&product)
 	errorCode := make(chan dto.SchemaError, 1)
 
@@ -38,7 +38,7 @@ func (r *productRepository) Create(input *dto.SchemaProduct) (*entity.EntityProd
 	}
 
 	product.Name = input.Name
-	product.Quantity = input.Quantity
+	product.Stock = input.Quantity
 	product.Price = input.Price
 	product.IsActive = input.IsActive
 
@@ -55,9 +55,9 @@ func (r *productRepository) Create(input *dto.SchemaProduct) (*entity.EntityProd
 	return &product, <-errorCode
 }
 
-func (r *productRepository) GetById(id uint64) (entity.EntityProduct, dto.SchemaError) {
+func (r *productRepository) GetById(id uint64) (entity.Product, dto.SchemaError) {
 
-	var students entity.EntityProduct
+	var students entity.Product
 	errorCode := make(chan dto.SchemaError, 1)
 	db := r.db.Model(&students)
 	students.ID = id
@@ -74,9 +74,9 @@ func (r *productRepository) GetById(id uint64) (entity.EntityProduct, dto.Schema
 	return students, <-errorCode
 }
 
-func (r *productRepository) GetList() ([]*entity.EntityProduct, dto.SchemaError) {
+func (r *productRepository) GetList() ([]*entity.Product, dto.SchemaError) {
 
-	var students []*entity.EntityProduct
+	var students []*entity.Product
 	db := r.db.Model(&students)
 	errorCode := make(chan dto.SchemaError, 1)
 
@@ -93,26 +93,47 @@ func (r *productRepository) GetList() ([]*entity.EntityProduct, dto.SchemaError)
 	return students, <-errorCode
 }
 
-func (r *productRepository) Update(input *dto.SchemaProduct) (*entity.EntityProduct, dto.SchemaError) {
+func (r *productRepository) UpdateStock(input dto.UpdateStockRequest) (*entity.Product, dto.SchemaError) {
 
-	var students entity.EntityProduct
-	db := r.db.Model(&students)
-	errorCode := make(chan dto.SchemaError, 1)
+	var product entity.Product
 
-	students.ID = input.ID
-	students.Name = input.Name
-	students.Quantity = input.Quantity
-	students.IsActive = input.IsActive
-	students.Price = input.Price
+	tx := r.db.Begin()
 
-	updateStudent := db.Debug().Where("id = ?", input.ID).Updates(students)
-
-	if updateStudent.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
-			StatusCode: http.StatusForbidden,
+	find := tx.Model(&product).Where("id = ?", input.ProductId).First(&product)
+	if find.Error != nil {
+		tx.Rollback()
+		return nil, dto.SchemaError{
+			Error:      find.Error,
+			StatusCode: 500,
 		}
-		return &students, <-errorCode
 	}
-	errorCode <- dto.SchemaError{}
-	return &students, <-errorCode
+
+	product.ID = input.ProductId
+	product.Stock = product.Stock - input.Quantity
+	update := tx.Debug().Updates(&product)
+
+	if update.Error != nil {
+		tx.Rollback()
+		return nil, dto.SchemaError{
+			StatusCode: 500,
+			Error:      update.Error,
+		}
+	}
+
+	create := tx.Debug().Create(&entity.Transaction{
+		ProductId: product.ID,
+		Price:     product.Price,
+		Quantity:  input.Quantity,
+		OrderId:   input.OrderId,
+	})
+
+	if create.Error != nil {
+		tx.Rollback()
+		return nil, dto.SchemaError{
+			StatusCode: 500,
+			Error:      create.Error,
+		}
+	}
+	tx.Commit()
+	return &product, dto.SchemaError{}
 }

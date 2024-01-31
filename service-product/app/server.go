@@ -1,18 +1,22 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"google.golang.org/grpc"
-	"log"
+	"service-product/constant"
+
+	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"net"
 	"service-product/database"
 	"service-product/dto"
 	defaultCtrl "service-product/module/default/controller"
-	userCtrl "service-product/module/product/controller"
+	productCtrl "service-product/module/product/controller"
 	"service-product/module/product/repository"
 	"service-product/module/product/usecase"
 	"service-product/pkg"
+	"service-product/pkg/kafka"
 	pb_health "service-product/proto/health"
 	pb_user "service-product/proto/product"
 )
@@ -29,18 +33,34 @@ func init() {
 func NewGRPC() error {
 	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "GRPC")
 
+	kafkaProducer := kafka.NewKafkaProducer()
+
+	defer func() {
+		if err := kafkaProducer.Producer.Close(); err != nil {
+			log.Errorf("Unable to stop kafka producer: %v", err)
+			return
+		}
+	}()
+
+	ctx := context.Background()
+
+	go kafka.NewKafkaConsumer(ctx, []string{constant.TOPIC_PRODUCT_STOCK_UPDATE})
+
+	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "GRPC")
+
 	db := database.SetupDatabase()
-	userRepository := repository.NewRepository(db)
-	userService := usecase.NewServiceProduct(userRepository)
+	productRepository := repository.NewRepository(db)
+	productService := usecase.NewServiceProduct(productRepository)
 
-	InitUser := userCtrl.NewControllerProductRPC(userService)
+	InitProductGRPC := productCtrl.NewControllerProductGRPC(productService)
+	productCtrl.NewProductControllerKafka(productService)
 
-	InitHealth := userCtrl.NewhealthCheck()
+	InitHealth := productCtrl.NewhealthCheck()
 
 	s := grpc.NewServer()
 	pb_health.RegisterHealthServer(s, InitHealth)
 
-	pb_user.RegisterServiceProductRPCServer(s, InitUser)
+	pb_user.RegisterServiceProductRPCServer(s, InitProductGRPC)
 
 	log.Println("Starting GRPC server at", dto.CfgApp.GRPCPort)
 	l, err := net.Listen("tcp", fmt.Sprintf(":%v", dto.CfgApp.GRPCPort))
@@ -59,7 +79,7 @@ func NewRestAPI() {
 	userRepo := repository.NewRepository(db)
 	userUseCase := usecase.NewServiceProduct(userRepo)
 
-	userCtrl.NewControllerProductHTTP(httpServer, userUseCase)
+	productCtrl.NewControllerProductHTTP(httpServer, userUseCase)
 	defaultCtrl.InitDefaultController(httpServer)
 
 	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "REST")

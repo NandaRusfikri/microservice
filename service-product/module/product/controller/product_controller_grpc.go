@@ -15,7 +15,7 @@ type ProductControllerGRPC struct {
 	pb.UnimplementedServiceProductRPCServer
 }
 
-func NewControllerProductRPC(service usecase.ServiceProductInterface) *ProductControllerGRPC {
+func NewControllerProductGRPC(service usecase.ServiceProductInterface) *ProductControllerGRPC {
 	return &ProductControllerGRPC{
 		service: service,
 	}
@@ -40,7 +40,7 @@ func (controller *ProductControllerGRPC) GetById(ctx context.Context, param *pb.
 	} else {
 		res.Id = strconv.Itoa(int(Product.ID))
 		res.Name = Product.Name
-		res.Quantity = Product.Quantity
+		res.Quantity = Product.Stock
 		res.IsActive = Product.IsActive
 		res.Price = Product.Price
 	}
@@ -65,7 +65,7 @@ func (controller *ProductControllerGRPC) Create(ctx context.Context, param *pb.C
 	} else {
 		resp.Id = strconv.Itoa(int(Create.ID))
 		resp.Name = Create.Name
-		resp.Quantity = Create.Quantity
+		resp.Quantity = Create.Stock
 		resp.IsActive = Create.IsActive
 		resp.Price = Create.Price
 	}
@@ -87,7 +87,7 @@ func (controller *ProductControllerGRPC) GetList(ctx context.Context, empty *emp
 			data := pb.Product{
 				Id:       strconv.FormatUint(product.ID, 10),
 				Name:     product.Name,
-				Quantity: product.Quantity,
+				Quantity: product.Stock,
 				Price:    product.Price,
 				IsActive: product.IsActive,
 			}
@@ -96,29 +96,4 @@ func (controller *ProductControllerGRPC) GetList(ctx context.Context, empty *emp
 		res.List = ListProto
 	}
 	return &res, nil
-}
-
-func (controller *ProductControllerGRPC) Update(ctx context.Context, req *pb.Product) (*pb.Product, error) {
-
-	var input dto.SchemaProduct
-	var resp pb.Product
-	input.ID, _ = strconv.ParseUint(req.Id, 10, 64)
-	input.Name = req.Name
-	input.Price = req.Price
-	input.Quantity = req.Quantity
-	input.IsActive = req.IsActive
-
-	Update, err := controller.service.Update(&input)
-
-	if err.Error != nil {
-		return nil, err.Error
-	} else {
-		resp.Id = strconv.FormatUint(Update.ID, 10)
-		resp.Name = Update.Name
-		resp.Price = Update.Price
-		resp.Quantity = Update.Quantity
-		resp.IsActive = Update.IsActive
-	}
-	return &resp, nil
-
 }

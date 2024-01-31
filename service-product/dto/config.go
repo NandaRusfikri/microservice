@@ -4,11 +4,13 @@ type ConfigEnvironment struct {
 	Database ConfigDatabase
 	App      ConfigApp
 	Consul   ConfigConsul
+	Kafka    ConfigKafka
 }
 
 var CfgConsul ConfigConsul
 var CfgApp ConfigApp
 var CfgDB ConfigDatabase
+var CfgKafka ConfigKafka
 
 type ConfigApp struct {
 	ServiceName string `env:"SERVICE_NAME"`
@@ -30,4 +32,10 @@ type ConfigDatabase struct {
 type ConfigConsul struct {
 	ConsulHost string `env:"CONSUL_HOST"`
 	ConsulPort int    `env:"CONSUL_PORT"`
+}
+
+type ConfigKafka struct {
+	KafkaUser     string `env:"KAFKA_USER"`
+	KafkaPassword string `env:"KAFKA_PASSWORD"`
+	KafkaAddress  string `env:"KAFKA_ADDRESS"`
 }

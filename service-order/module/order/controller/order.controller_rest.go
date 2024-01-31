@@ -24,7 +24,7 @@ func NewOrderControllerRestAPI(service orders.OrderServiceInterface, route *gin.
 
 func (h *OrderControllerRestAPI) Create(ctx *gin.Context) {
 
-	var input dto.SchemaOrder
+	var input dto.CreateOrderRequest
 	ctx.ShouldBindJSON(&input)
 
 	_, err := h.OrderService.Create(&input)

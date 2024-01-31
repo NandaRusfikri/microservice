@@ -30,22 +30,28 @@ func NewOrderService(
 
 }
 
-func (s *orderService) Create(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError) {
+func (s *orderService) Create(input *dto.CreateOrderRequest) (*entities.Order, dto.ResponseError) {
 
-	var product dto.SchemaOrder
-
-	Product, err := s.OrderRepoRPC.FindProductByIdRepository(context.Background(), input.ProductId)
-	if Product.ID < 1 {
+	product, err := s.OrderRepoRPC.FindProductByIdRepository(context.Background(), input.ProductId)
+	if product.ID < 1 {
 		return nil, err
 	}
+	var order entities.Order
+	order.ProductId = product.ID
+	order.UserId = input.UserId
+	order.Price = product.Price
+	order.Quantity = input.Quantity
+	order.Amount = product.Price * input.Quantity
+	order.State = constant.ORDER_STATE_PENDING
 
-	product.ProductId = Product.ID
-	product.UserId = input.UserId
-	product.Amount = Product.Price
+	res, err := s.OrderRepository.Create(order)
 
-	res, err := s.OrderRepository.Create(&product)
-
-	ayam := s.Kafka.SendMessage(constant.TOPIC_PRODUCT, fmt.Sprintf("%v", res.ID), 1)
+	ayam := s.Kafka.SendMessage(constant.TOPIC_PRODUCT_STOCK_UPDATE, map[string]interface{}{
+		"product_id": product.ID,
+		"user_id":    input.UserId,
+		"quantity":   input.Quantity,
+		"order_id":   res.ID,
+	}, 1)
 	if ayam != nil {
 		fmt.Println(ayam.Error())
 	}

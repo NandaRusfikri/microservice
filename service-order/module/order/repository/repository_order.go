@@ -16,25 +16,18 @@ func NewOrderRepositorySQL(db *gorm.DB) repositorys.RepositoryInterface {
 	return &orderRepository{db: db}
 }
 
-func (r *orderRepository) Create(input *dto.SchemaOrder) (*entities.Order, dto.ResponseError) {
+func (r *orderRepository) Create(input entities.Order) (*entities.Order, dto.ResponseError) {
 
-	var product entities.Order
-	db := r.db.Model(&product)
-
-	product.Amount = input.Amount
-	product.UserId = input.UserId
-	product.ProductId = input.ProductId
-
-	create := db.Debug().Create(&product)
+	create := r.db.Debug().Create(&input)
 
 	if create.Error != nil {
-		return &product, dto.ResponseError{
+		return nil, dto.ResponseError{
 			Error:      create.Error,
 			StatusCode: http.StatusInternalServerError,
 		}
 	}
 
-	return &product, dto.ResponseError{}
+	return &input, dto.ResponseError{}
 }
 
 func (r *orderRepository) GetById(orderId uint64) (*entities.Order, dto.ResponseError) {
