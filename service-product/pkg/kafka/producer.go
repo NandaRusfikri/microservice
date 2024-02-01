@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"encoding/json"
 	"github.com/IBM/sarama"
 	log "github.com/sirupsen/logrus"
 )
@@ -9,11 +10,16 @@ type Producer struct {
 	Producer sarama.SyncProducer
 }
 
-func (p *Producer) SendMessage(topic, msg string, partition int32) error {
+func (p *Producer) SendMessage(topic string, msg map[string]interface{}, partition int32) error {
+
+	jsonByte, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
 
 	kafkaMsg := &sarama.ProducerMessage{
 		Topic: topic,
-		Value: sarama.StringEncoder(msg),
+		Value: sarama.StringEncoder(jsonByte),
 		//Partition: partition,
 	}
 

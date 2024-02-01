@@ -1,6 +1,6 @@
 package dto
 
-type SchemaError struct {
+type ResponseError struct {
 	StatusCode int
 	Error      error
 }

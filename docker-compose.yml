@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - microservice-nanda
+      - microservice
 
   consul:
     image: hashicorp/consul:latest
@@ -21,7 +21,7 @@ services:
       - "8600:8600"  # Consul DNS
       - "8600:8600/udp"
     networks:
-      - microservice-nanda
+      - microservice
 
   service-user:
     container_name: service-user
@@ -38,7 +38,7 @@ services:
       - CONSUL_HOST=consul
       - DB_HOST=postgres
     networks:
-      - microservice-nanda
+      - microservice
     depends_on:
       - postgres
 
@@ -57,7 +57,7 @@ services:
       - CONSUL_HOST=consul
       - DB_HOST=postgres
     networks:
-      - microservice-nanda
+      - microservice
     depends_on:
       - postgres
 
@@ -86,5 +86,5 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
 
 networks:
-  microservice-nanda:
+  microservice:
     driver: bridge

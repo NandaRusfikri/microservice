@@ -8,10 +8,10 @@ import (
 )
 
 type ProductRepositoryInterface interface {
-	Create(input *dto.SchemaProduct) (*entity.Product, dto.SchemaError)
-	GetById(id uint64) (entity.Product, dto.SchemaError)
-	GetList() ([]*entity.Product, dto.SchemaError)
-	UpdateStock(input dto.UpdateStockRequest) (*entity.Product, dto.SchemaError)
+	Create(input *dto.SchemaProduct) (*entity.Product, dto.ResponseError)
+	GetById(id uint64) (entity.Product, dto.ResponseError)
+	GetList() ([]*entity.Product, dto.ResponseError)
+	UpdateStock(input dto.UpdateStockRequest) (*entity.Product, dto.ResponseError)
 }
 
 type productRepository struct {
@@ -22,16 +22,16 @@ func NewRepository(db *gorm.DB) ProductRepositoryInterface {
 	return &productRepository{db: db}
 }
 
-func (r *productRepository) Create(input *dto.SchemaProduct) (*entity.Product, dto.SchemaError) {
+func (r *productRepository) Create(input *dto.SchemaProduct) (*entity.Product, dto.ResponseError) {
 
 	var product entity.Product
 	db := r.db.Model(&product)
-	errorCode := make(chan dto.SchemaError, 1)
+	errorCode := make(chan dto.ResponseError, 1)
 
 	checkProductExist := db.Debug().First(&product, "name = ?", input.Name)
 
 	if checkProductExist.RowsAffected > 0 {
-		errorCode <- dto.SchemaError{
+		errorCode <- dto.ResponseError{
 			StatusCode: http.StatusConflict,
 		}
 		return &product, <-errorCode
@@ -45,55 +45,55 @@ func (r *productRepository) Create(input *dto.SchemaProduct) (*entity.Product, d
 	addNewProduct := db.Debug().Create(&product)
 
 	if addNewProduct.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
+		errorCode <- dto.ResponseError{
 			StatusCode: http.StatusForbidden,
 		}
 		return &product, <-errorCode
 	}
-	errorCode <- dto.SchemaError{}
+	errorCode <- dto.ResponseError{}
 
 	return &product, <-errorCode
 }
 
-func (r *productRepository) GetById(id uint64) (entity.Product, dto.SchemaError) {
+func (r *productRepository) GetById(id uint64) (entity.Product, dto.ResponseError) {
 
 	var students entity.Product
-	errorCode := make(chan dto.SchemaError, 1)
+	errorCode := make(chan dto.ResponseError, 1)
 	db := r.db.Model(&students)
 	students.ID = id
 	resultProduct := db.Debug().First(&students, id)
 	if resultProduct.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
+		errorCode <- dto.ResponseError{
 			StatusCode: http.StatusNotFound,
 		}
 		return students, <-errorCode
 	}
 
-	errorCode <- dto.SchemaError{}
+	errorCode <- dto.ResponseError{}
 
 	return students, <-errorCode
 }
 
-func (r *productRepository) GetList() ([]*entity.Product, dto.SchemaError) {
+func (r *productRepository) GetList() ([]*entity.Product, dto.ResponseError) {
 
 	var students []*entity.Product
 	db := r.db.Model(&students)
-	errorCode := make(chan dto.SchemaError, 1)
+	errorCode := make(chan dto.ResponseError, 1)
 
 	resultsStudents := db.Debug().Find(&students)
 
 	if resultsStudents.RowsAffected < 1 {
-		errorCode <- dto.SchemaError{
+		errorCode <- dto.ResponseError{
 			StatusCode: http.StatusNotFound,
 		}
 		return students, <-errorCode
 	}
 
-	errorCode <- dto.SchemaError{}
+	errorCode <- dto.ResponseError{}
 	return students, <-errorCode
 }
 
-func (r *productRepository) UpdateStock(input dto.UpdateStockRequest) (*entity.Product, dto.SchemaError) {
+func (r *productRepository) UpdateStock(input dto.UpdateStockRequest) (*entity.Product, dto.ResponseError) {
 
 	var product entity.Product
 
@@ -102,7 +102,7 @@ func (r *productRepository) UpdateStock(input dto.UpdateStockRequest) (*entity.P
 	find := tx.Model(&product).Where("id = ?", input.ProductId).First(&product)
 	if find.Error != nil {
 		tx.Rollback()
-		return nil, dto.SchemaError{
+		return nil, dto.ResponseError{
 			Error:      find.Error,
 			StatusCode: 500,
 		}
@@ -114,7 +114,7 @@ func (r *productRepository) UpdateStock(input dto.UpdateStockRequest) (*entity.P
 
 	if update.Error != nil {
 		tx.Rollback()
-		return nil, dto.SchemaError{
+		return nil, dto.ResponseError{
 			StatusCode: 500,
 			Error:      update.Error,
 		}
@@ -129,11 +129,11 @@ func (r *productRepository) UpdateStock(input dto.UpdateStockRequest) (*entity.P
 
 	if create.Error != nil {
 		tx.Rollback()
-		return nil, dto.SchemaError{
+		return nil, dto.ResponseError{
 			StatusCode: 500,
 			Error:      create.Error,
 		}
 	}
 	tx.Commit()
-	return &product, dto.SchemaError{}
+	return &product, dto.ResponseError{}
 }

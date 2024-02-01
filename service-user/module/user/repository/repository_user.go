@@ -9,11 +9,11 @@ import (
 )
 
 type UserRepositoryInterface interface {
-	Create(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
-	GetById(userId uint64) (entity.Users, dto.SchemaError)
-	GetList() (*[]entity.Users, dto.SchemaError)
-	Update(input *dto.SchemaUser) (*entity.Users, dto.SchemaError)
-	CutBalance(input dto.CutBalanceRequest) (entity.Users, dto.SchemaError)
+	Create(input *dto.SchemaUser) (*entity.Users, dto.ResponseError)
+	GetById(userId uint64) (entity.Users, dto.ResponseError)
+	GetList() (*[]entity.Users, dto.ResponseError)
+	Update(input *dto.SchemaUser) (*entity.Users, dto.ResponseError)
+	CutBalance(input dto.CutBalanceRequest) (entity.Users, dto.ResponseError)
 }
 
 type userRepository struct {
@@ -24,7 +24,7 @@ func NewUserRepository(db *gorm.DB) UserRepositoryInterface {
 	return &userRepository{db: db}
 }
 
-func (r *userRepository) Create(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
+func (r *userRepository) Create(input *dto.SchemaUser) (*entity.Users, dto.ResponseError) {
 
 	var students entity.Users
 	db := r.db.Model(&students)
@@ -33,7 +33,7 @@ func (r *userRepository) Create(input *dto.SchemaUser) (*entity.Users, dto.Schem
 
 	if checkUserExist.RowsAffected > 0 {
 
-		return &students, dto.SchemaError{
+		return &students, dto.ResponseError{
 			StatusCode: http.StatusConflict,
 			Error:      errors.New("conflic"),
 		}
@@ -47,15 +47,15 @@ func (r *userRepository) Create(input *dto.SchemaUser) (*entity.Users, dto.Schem
 	addNewUser := db.Debug().Create(&students).Commit()
 
 	if addNewUser.RowsAffected < 1 {
-		return &students, dto.SchemaError{
+		return &students, dto.ResponseError{
 			StatusCode: http.StatusForbidden,
 			Error:      errors.New("joe biden"),
 		}
 	}
-	return &students, dto.SchemaError{}
+	return &students, dto.ResponseError{}
 }
 
-func (r *userRepository) GetById(userId uint64) (entity.Users, dto.SchemaError) {
+func (r *userRepository) GetById(userId uint64) (entity.Users, dto.ResponseError) {
 
 	var user entity.Users
 	user.ID = userId
@@ -64,16 +64,16 @@ func (r *userRepository) GetById(userId uint64) (entity.Users, dto.SchemaError) 
 	resultUsers := db.Debug().First(&user)
 
 	if resultUsers.RowsAffected < 1 {
-		return user, dto.SchemaError{
+		return user, dto.ResponseError{
 			StatusCode: http.StatusNotFound,
 			Error:      errors.New("not found"),
 		}
 	}
 
-	return user, dto.SchemaError{}
+	return user, dto.ResponseError{}
 }
 
-func (r *userRepository) GetList() (*[]entity.Users, dto.SchemaError) {
+func (r *userRepository) GetList() (*[]entity.Users, dto.ResponseError) {
 
 	var user []entity.Users
 	db := r.db.Model(&user)
@@ -82,16 +82,16 @@ func (r *userRepository) GetList() (*[]entity.Users, dto.SchemaError) {
 
 	if resultsUsers.RowsAffected < 1 {
 
-		return &user, dto.SchemaError{
+		return &user, dto.ResponseError{
 			StatusCode: http.StatusNotFound,
 			Error:      errors.New("not fpound"),
 		}
 	}
 
-	return &user, dto.SchemaError{}
+	return &user, dto.ResponseError{}
 }
 
-func (r *userRepository) Update(input *dto.SchemaUser) (*entity.Users, dto.SchemaError) {
+func (r *userRepository) Update(input *dto.SchemaUser) (*entity.Users, dto.ResponseError) {
 
 	var students entity.Users
 	db := r.db.Model(&students)
@@ -101,7 +101,7 @@ func (r *userRepository) Update(input *dto.SchemaUser) (*entity.Users, dto.Schem
 	checkUserId := db.Debug().First(&students)
 
 	if checkUserId.RowsAffected < 1 {
-		return &students, dto.SchemaError{
+		return &students, dto.ResponseError{
 			StatusCode: http.StatusNotFound,
 			Error:      errors.New("not found"),
 		}
@@ -116,15 +116,15 @@ func (r *userRepository) Update(input *dto.SchemaUser) (*entity.Users, dto.Schem
 	updateUser := db.Debug().Where("id = ?", input.ID).Updates(students)
 
 	if updateUser.RowsAffected < 1 {
-		return &students, dto.SchemaError{
+		return &students, dto.ResponseError{
 			StatusCode: http.StatusForbidden,
 			Error:      errors.New("joe biden"),
 		}
 	}
-	return &students, dto.SchemaError{}
+	return &students, dto.ResponseError{}
 }
 
-func (r *userRepository) CutBalance(input dto.CutBalanceRequest) (entity.Users, dto.SchemaError) {
+func (r *userRepository) CutBalance(input dto.CutBalanceRequest) (entity.Users, dto.ResponseError) {
 
 	var user entity.Users
 	tx := r.db.Begin()
@@ -132,7 +132,7 @@ func (r *userRepository) CutBalance(input dto.CutBalanceRequest) (entity.Users, 
 	checkUserId := tx.Model(entity.Users{}).Where("id = ? ", input.UserId).First(&user)
 
 	if checkUserId.RowsAffected < 1 {
-		return user, dto.SchemaError{
+		return user, dto.ResponseError{
 			StatusCode: http.StatusNotFound,
 			Error:      errors.New("not found"),
 		}
@@ -143,7 +143,7 @@ func (r *userRepository) CutBalance(input dto.CutBalanceRequest) (entity.Users, 
 	updateUser := tx.Where("id = ?", input.UserId).Updates(&user)
 
 	if updateUser.Error != nil {
-		return user, dto.SchemaError{
+		return user, dto.ResponseError{
 			StatusCode: http.StatusInternalServerError,
 			Error:      errors.New("Error Cut Balance "),
 		}
@@ -157,12 +157,12 @@ func (r *userRepository) CutBalance(input dto.CutBalanceRequest) (entity.Users, 
 	})
 	if createTrx.Error != nil {
 		tx.Rollback()
-		return user, dto.SchemaError{
+		return user, dto.ResponseError{
 			StatusCode: http.StatusInternalServerError,
 			Error:      errors.New("Error Cut Balance "),
 		}
 	}
 	tx.Commit()
 
-	return user, dto.SchemaError{}
+	return user, dto.ResponseError{}
 }

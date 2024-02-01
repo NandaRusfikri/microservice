@@ -29,6 +29,7 @@ func ListenTopicProductQuantityUpdate(orderService usecase.UsecaseInterface) {
 				ProductId: product_id,
 				OrderId:   order_id,
 			})
+
 		}
 	}
 

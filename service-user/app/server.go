@@ -48,17 +48,14 @@ func NewGRPC() error {
 
 	db := database.SetupDatabase()
 	userRepository := repository.NewUserRepository(db)
-	userService := usecase.NewUserUsecase(userRepository)
-
-	InitUser := userCtrl.NewHandlerRPCUser(userService)
-	InitHealth := userCtrl.NewhealthCheck()
+	userService := usecase.NewUserUsecase(userRepository, kafkaProducer)
 
 	go kafka.NewKafkaConsumer(ctx, []string{constant.TOPIC_NEW_ORDER})
 	userCtrl.NewUserControllerKafka(userService)
 
 	s := grpc.NewServer()
-	pb_user.RegisterHealthServer(s, InitHealth)
-	pb_user.RegisterServiceUserRPCServer(s, InitUser)
+	pb_user.RegisterHealthServer(s, defaultCtrl.NewhealthCheck())
+	pb_user.RegisterServiceUserRPCServer(s, userCtrl.NewHandlerRPCUser(userService))
 
 	log.Println("Starting GRPC server at", dto.CfgApp.GRPCPort)
 	l, err := net.Listen("tcp", fmt.Sprintf(":%v", dto.CfgApp.GRPCPort))
@@ -71,21 +68,21 @@ func NewGRPC() error {
 
 func NewRestAPI() {
 
-	db := database.SetupDatabase()
-	httpServer := pkg.InitHTTPGin()
-
-	userRepo := repository.NewUserRepository(db)
-	userUseCase := usecase.NewUserUsecase(userRepo)
-
-	userCtrl.NewUserControllerHTTP(httpServer, userUseCase)
-	defaultCtrl.InitDefaultController(httpServer)
-
-	//pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.RestPort, "REST")
-
-	log.Println("Starting Rest API server at", dto.CfgApp.RestPort)
-	err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))
-	if err != nil {
-		panic(err)
-	}
+	//db := database.SetupDatabase()
+	//httpServer := pkg.InitHTTPGin()
+	//
+	//userRepo := repository.NewUserRepository(db)
+	//userUseCase := usecase.NewUserUsecase(userRepo)
+	//
+	//userCtrl.NewUserControllerHTTP(httpServer, userUseCase)
+	//defaultCtrl.InitDefaultController(httpServer)
+	//
+	////pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.RestPort, "REST")
+	//
+	//log.Println("Starting Rest API server at", dto.CfgApp.RestPort)
+	//err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))
+	//if err != nil {
+	//	panic(err)
+	//}
 
 }

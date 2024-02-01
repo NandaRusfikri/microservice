@@ -50,12 +50,12 @@ func NewGRPC() error {
 
 	db := database.SetupDatabase()
 	productRepository := repository.NewRepository(db)
-	productService := usecase.NewServiceProduct(productRepository)
+	productService := usecase.NewServiceProduct(productRepository, kafkaProducer)
 
 	InitProductGRPC := productCtrl.NewControllerProductGRPC(productService)
 	productCtrl.NewProductControllerKafka(productService)
 
-	InitHealth := productCtrl.NewhealthCheck()
+	InitHealth := defaultCtrl.NewhealthCheck()
 
 	s := grpc.NewServer()
 	pb_health.RegisterHealthServer(s, InitHealth)
@@ -73,21 +73,21 @@ func NewGRPC() error {
 
 func NewRestAPI() {
 
-	db := database.SetupDatabase()
-	httpServer := pkg.InitHTTPGin()
-
-	userRepo := repository.NewRepository(db)
-	userUseCase := usecase.NewServiceProduct(userRepo)
-
-	productCtrl.NewControllerProductHTTP(httpServer, userUseCase)
-	defaultCtrl.InitDefaultController(httpServer)
-
-	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "REST")
-
-	log.Println("Starting REST server at", dto.CfgApp.RestPort)
-	err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))
-	if err != nil {
-		panic(err)
-	}
+	//db := database.SetupDatabase()
+	//httpServer := pkg.InitHTTPGin()
+	//
+	//userRepo := repository.NewRepository(db)
+	//userUseCase := usecase.NewServiceProduct(userRepo)
+	//
+	//productCtrl.NewControllerProductHTTP(httpServer, userUseCase)
+	//defaultCtrl.InitDefaultController(httpServer)
+	//
+	//pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "REST")
+	//
+	//log.Println("Starting REST server at", dto.CfgApp.RestPort)
+	//err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))
+	//if err != nil {
+	//	panic(err)
+	//}
 
 }

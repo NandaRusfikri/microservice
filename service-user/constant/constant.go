@@ -7,6 +7,7 @@ const (
 	TABLE_USERS       = "users"
 	TABLE_TRANSACTION = "transaction"
 	TOPIC_NEW_ORDER   = "new-order"
+	TOPIC_ORDER_REPLY = "order-reply"
 )
 
 var TopicNewOrder = make(chan string)
