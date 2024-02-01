@@ -7,7 +7,7 @@ const (
 	TABLE_PRODUCT     = "product"
 	TABLE_TRANSACTION = "transaction"
 
-	TOPIC_PRODUCT_STOCK_UPDATE = "product-stock-update"
+	TOPIC_NEW_ORDER = "new-order"
 )
 
 var TopicProductStockUpdate = make(chan string)

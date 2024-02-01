@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"go-micro.dev/v4/util/log"
 	"net/http"
 	"service-user/dto"
@@ -68,7 +67,6 @@ func (s *userUsecase) CutBalance(input dto.CutBalanceRequest) (entity.Users, dto
 		log.Error(err.Error)
 		return user, err
 	}
-	fmt.Println("balance ", (user.Balance - input.Balance))
 	if (user.Balance - input.Balance) < 1 {
 		return user, dto.SchemaError{
 			StatusCode: http.StatusForbidden,

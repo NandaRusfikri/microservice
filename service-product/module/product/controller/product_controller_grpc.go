@@ -11,11 +11,11 @@ import (
 )
 
 type ProductControllerGRPC struct {
-	service usecase.ServiceProductInterface
+	service usecase.UsecaseInterface
 	pb.UnimplementedServiceProductRPCServer
 }
 
-func NewControllerProductGRPC(service usecase.ServiceProductInterface) *ProductControllerGRPC {
+func NewControllerProductGRPC(service usecase.UsecaseInterface) *ProductControllerGRPC {
 	return &ProductControllerGRPC{
 		service: service,
 	}

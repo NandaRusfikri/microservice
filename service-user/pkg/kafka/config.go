@@ -3,16 +3,15 @@ package kafka
 import (
 	"github.com/IBM/sarama"
 	log "github.com/sirupsen/logrus"
-	"service-product/constant"
-	"service-product/dto"
+	"service-user/constant"
+	"service-user/dto"
 	"time"
 )
 
 func NewKafkaProducer() *Producer {
 
 	address, config := getKafkaConfig()
-	CreateTopic("sarama")
-	CreateTopic("ayam")
+	CreateTopic(constant.TOPIC_NEW_ORDER)
 
 	producers, err := sarama.NewSyncProducer(address, config)
 
@@ -49,11 +48,8 @@ func CreateTopic(topic string) error {
 }
 
 var (
-	//brokers  = ""
-	version  = ""
-	group    = constant.SERVICE_NAME
-	assignor = ""
-	oldest   = true
+	group  = constant.SERVICE_NAME
+	oldest = true
 )
 
 func getKafkaConfig() ([]string, *sarama.Config) {

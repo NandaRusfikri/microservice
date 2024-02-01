@@ -6,7 +6,7 @@ import (
 	"service-product/module/product/repository"
 )
 
-type ServiceProductInterface interface {
+type UsecaseInterface interface {
 	Create(input *dto.SchemaProduct) (*entity.Product, dto.SchemaError)
 	GetByID(id uint64) (entity.Product, dto.SchemaError)
 	GetList() ([]*entity.Product, dto.SchemaError)

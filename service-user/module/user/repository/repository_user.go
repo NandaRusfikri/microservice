@@ -134,7 +134,7 @@ func (r *userRepository) CutBalance(input dto.CutBalanceRequest) (entity.Users, 
 	if checkUserId.RowsAffected < 1 {
 		return user, dto.SchemaError{
 			StatusCode: http.StatusNotFound,
-			Error:      errors.New("mot fpund"),
+			Error:      errors.New("not found"),
 		}
 	}
 
@@ -144,21 +144,22 @@ func (r *userRepository) CutBalance(input dto.CutBalanceRequest) (entity.Users, 
 
 	if updateUser.Error != nil {
 		return user, dto.SchemaError{
-			StatusCode: http.StatusForbidden,
-			Error:      updateUser.Error,
+			StatusCode: http.StatusInternalServerError,
+			Error:      errors.New("Error Cut Balance "),
 		}
 	}
 
 	createTrx := tx.Create(&entity.Transaction{
-		UserId: user.ID,
-		Amount: (input.Balance * -1),
-		Type:   "OUT",
+		UserId:  user.ID,
+		OrderId: input.OrderId,
+		Amount:  (input.Balance * -1),
+		Type:    "OUT",
 	})
 	if createTrx.Error != nil {
 		tx.Rollback()
 		return user, dto.SchemaError{
-			StatusCode: http.StatusForbidden,
-			Error:      errors.New("joe biden"),
+			StatusCode: http.StatusInternalServerError,
+			Error:      errors.New("Error Cut Balance "),
 		}
 	}
 	tx.Commit()

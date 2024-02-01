@@ -11,6 +11,7 @@ type Transaction struct {
 	UserId    uint64    `gorm:"column:user_id" json:"user_id"`
 	Amount    int64     `gorm:"column:amount" json:"amount"`
 	Type      string    `gorm:"column:type" json:"type"`
+	OrderId   uint64    `gorm:"column:order_id" json:"order_id"`
 }
 
 func (entity *Transaction) TableName() string {

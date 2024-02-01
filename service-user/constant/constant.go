@@ -6,4 +6,7 @@ const (
 	AUTHOR            = "NandaRusfikri"
 	TABLE_USERS       = "users"
 	TABLE_TRANSACTION = "transaction"
+	TOPIC_NEW_ORDER   = "new-order"
 )
+
+var TopicNewOrder = make(chan string)

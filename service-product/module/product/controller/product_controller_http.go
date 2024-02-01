@@ -10,10 +10,10 @@ import (
 )
 
 type ProductControllerHTTP struct {
-	service usecase.ServiceProductInterface
+	service usecase.UsecaseInterface
 }
 
-func NewControllerProductHTTP(route *gin.Engine, service usecase.ServiceProductInterface) {
+func NewControllerProductHTTP(route *gin.Engine, service usecase.UsecaseInterface) {
 	controller := &ProductControllerHTTP{service: service}
 
 	groupRoute := route.Group("/api/v1")

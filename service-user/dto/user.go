@@ -11,4 +11,5 @@ type SchemaUser struct {
 type CutBalanceRequest struct {
 	UserId  uint64 `json:"user_id" `
 	Balance int64  `json:"balance" validate:"required"`
+	OrderId uint64 `json:"order_id"`
 }

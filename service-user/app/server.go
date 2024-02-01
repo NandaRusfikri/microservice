@@ -1,35 +1,50 @@
 package app
 
 import (
+	"context"
+	"flag"
 	"fmt"
 	"net"
+	"service-user/constant"
 	"service-user/database"
 	"service-user/dto"
 	defaultCtrl "service-user/module/default/controller"
 	userCtrl "service-user/module/user/controller"
+	"service-user/pkg/kafka"
 
 	"service-user/module/user/repository"
 	"service-user/module/user/usecase"
 
 	"google.golang.org/grpc"
 
-	"log"
+	log "github.com/sirupsen/logrus"
 	"service-user/pkg"
 	pb_user "service-user/proto/user"
 )
 
 func init() {
 	pkg.LoadConfig(".env")
+	portGRPC := flag.Int("grpc-port", 4100, "GRPC Port Service")
+	portREST := flag.Int("rest-port", 4200, "REST Port Service")
+	flag.Parse()
 
-	//min := 3000
-	//max := 3010
-	//dto.CfgApp.RestPort = rand.Intn(max-min) + min
-	//dto.CfgApp.GRPCPort = rand.Intn(max-min) + (min + 1)
-	dto.CfgApp.GRPCPort = 3006
+	dto.CfgApp.RestPort = *portREST
+	dto.CfgApp.GRPCPort = *portGRPC
 }
 
 func NewGRPC() error {
 	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "GRPC")
+
+	kafkaProducer := kafka.NewKafkaProducer()
+
+	defer func() {
+		if err := kafkaProducer.Producer.Close(); err != nil {
+			log.Errorf("Unable to stop kafka producer: %v", err)
+			return
+		}
+	}()
+
+	ctx := context.Background()
 
 	db := database.SetupDatabase()
 	userRepository := repository.NewUserRepository(db)
@@ -37,6 +52,9 @@ func NewGRPC() error {
 
 	InitUser := userCtrl.NewHandlerRPCUser(userService)
 	InitHealth := userCtrl.NewhealthCheck()
+
+	go kafka.NewKafkaConsumer(ctx, []string{constant.TOPIC_NEW_ORDER})
+	userCtrl.NewUserControllerKafka(userService)
 
 	s := grpc.NewServer()
 	pb_user.RegisterHealthServer(s, InitHealth)
