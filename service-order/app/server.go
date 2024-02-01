@@ -6,7 +6,6 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"math/rand"
 	"net"
 	"service-order/constant"
 	"service-order/database"
@@ -23,13 +22,12 @@ import (
 func init() {
 	pkg.LoadConfig(".env")
 
-	flags := flag.Int("grpc-port", 6000, "GRPC Port Service")
+	portGRPC := flag.Int("grpc-port", 6100, "GRPC Port Service")
+	portREST := flag.Int("rest-port", 6200, "REST Port Service")
 	flag.Parse()
 
-	min := 3100
-	max := 3150
-	dto.CfgApp.RestPort = rand.Intn(max-min) + min
-	dto.CfgApp.GRPCPort = *flags
+	dto.CfgApp.RestPort = *portREST
+	dto.CfgApp.GRPCPort = *portGRPC
 }
 
 func NewGRPC() error {
@@ -46,7 +44,7 @@ func NewGRPC() error {
 
 	ctx := context.Background()
 
-	go kafka.NewKafkaConsumer(ctx, []string{constant.TOPIC_PRODUCT_STOCK_UPDATE, constant.TOPIC_ORDER_REPLY})
+	go kafka.NewKafkaConsumer(ctx, []string{constant.TOPIC_NEW_ORDER, constant.TOPIC_ORDER_REPLY})
 
 	db := database.SetupDatabase()
 	orderRepo := order_repo.NewOrderRepositorySQL(db)

@@ -10,10 +10,10 @@ import (
 )
 
 type OrderControllerRestAPI struct {
-	OrderService orders.OrderServiceInterface
+	OrderService orders.ServiceInterface
 }
 
-func NewOrderControllerRestAPI(service orders.OrderServiceInterface, route *gin.Engine) {
+func NewOrderControllerRestAPI(service orders.ServiceInterface, route *gin.Engine) {
 	ctrl := OrderControllerRestAPI{OrderService: service}
 
 	groupRoute := route.Group("/api/v1")

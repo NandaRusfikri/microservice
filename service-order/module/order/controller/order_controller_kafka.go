@@ -1,23 +1,41 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"service-order/constant"
+	"service-order/dto"
 	orders "service-order/module/order"
 )
 
-func NewOrderControllerKafka(orderService orders.OrderServiceInterface) {
-	go ListenTopicProduct(orderService)
+func NewOrderControllerKafka(orderService orders.ServiceInterface) {
+	go ListenTopicOrderReply(orderService)
 }
 
-func ListenTopicProduct(orderService orders.OrderServiceInterface) {
+func ListenTopicOrderReply(orderService orders.ServiceInterface) {
 
 	for {
 		select {
-		case data := <-constant.ChanTopicProduct:
-			fmt.Println("bebek ", data)
-			res, _ := orderService.GetById(10)
-			fmt.Printf("data bebek %+v\n", res)
+		case data := <-constant.ChanTopicOrderReply:
+
+			var msg map[string]interface{}
+			json.Unmarshal([]byte(data), &msg)
+
+			orderId := uint64(msg["order_id"].(float64))
+			serviceName := msg["service_name"].(string)
+			status := msg["status"].(bool)
+
+			if status {
+				fmt.Println("orderId", orderId)
+				fmt.Println("serviceName", serviceName)
+				orderService.CreateOrderReply(dto.CreateOrderReplyRequest{
+					OrderId:     orderId,
+					ServiceName: serviceName,
+				})
+			} else {
+				fmt.Println("ada Error nih dari id  service ", orderId, serviceName)
+			}
+
 		}
 	}
 

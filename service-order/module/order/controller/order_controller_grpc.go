@@ -10,11 +10,11 @@ import (
 )
 
 type OrderControllerGRPC struct {
-	OrderService orders.OrderServiceInterface
+	OrderService orders.ServiceInterface
 	pb_order.UnimplementedServiceOrderRPCServer
 }
 
-func NewOrderControllerGRPC(serviceCreate orders.OrderServiceInterface) *OrderControllerGRPC {
+func NewOrderControllerGRPC(serviceCreate orders.ServiceInterface) *OrderControllerGRPC {
 	return &OrderControllerGRPC{OrderService: serviceCreate}
 }
 

@@ -1,6 +1,7 @@
 package repositorys
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"net/http"
 	"service-order/dto"
@@ -62,4 +63,49 @@ func (r *orderRepository) GetList() ([]*entities.Order, dto.ResponseError) {
 	}
 
 	return dataOrder, dto.ResponseError{}
+}
+
+func (r *orderRepository) CreateOrderReply(input entities.TopicOrderReply) (bool, dto.ResponseError) {
+
+	create := r.db.Create(&input)
+
+	if create.Error != nil {
+		return false, dto.ResponseError{
+			Error:      create.Error,
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+
+	var dataOrder []entities.TopicOrderReply
+	result := r.db.Model(&entities.TopicOrderReply{}).Where("order_id = ?", input.OrderId).Find(&dataOrder)
+
+	if result.Error != nil {
+		return false, dto.ResponseError{
+			Error:      result.Error,
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+
+	fmt.Println("dataOrder", len(dataOrder))
+	if len(dataOrder) == 2 {
+		return true, dto.ResponseError{}
+	}
+
+	return false, dto.ResponseError{}
+}
+
+func (r *orderRepository) UpdateState(orderId uint64, state string) (*entities.Order, dto.ResponseError) {
+
+	order := entities.Order{
+		ID:    int64(orderId),
+		State: state,
+	}
+	update := r.db.Debug().Updates(&order)
+	if update.Error != nil {
+		return nil, dto.ResponseError{
+			Error:      update.Error,
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+	return &order, dto.ResponseError{}
 }

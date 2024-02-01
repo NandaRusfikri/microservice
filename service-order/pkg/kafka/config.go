@@ -3,6 +3,7 @@ package kafka
 import (
 	"github.com/IBM/sarama"
 	log "github.com/sirupsen/logrus"
+	"service-order/constant"
 	"service-order/dto"
 	"time"
 )
@@ -50,7 +51,7 @@ func CreateTopic(topic string) error {
 var (
 	//brokers  = ""
 	version  = ""
-	group    = "ServiceProduct"
+	group    = constant.SERVICE_NAME
 	assignor = ""
 	oldest   = true
 )

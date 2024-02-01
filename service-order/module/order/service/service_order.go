@@ -2,7 +2,6 @@ package order
 
 import (
 	"context"
-	"fmt"
 	"service-order/constant"
 	"service-order/dto"
 	repoorder "service-order/module/order"
@@ -21,7 +20,7 @@ func NewOrderService(
 	repository repoorder.RepositoryInterface,
 	repoProduct repoproduct.RepositoryGRPCInterface,
 	kafka *kafka.Producer,
-) repoorder.OrderServiceInterface {
+) repoorder.ServiceInterface {
 	return &orderService{
 		OrderRepository: repository,
 		OrderRepoRPC:    repoProduct,
@@ -46,14 +45,19 @@ func (s *orderService) Create(input *dto.CreateOrderRequest) (*entities.Order, d
 
 	res, err := s.OrderRepository.Create(order)
 
-	ayam := s.Kafka.SendMessage(constant.TOPIC_PRODUCT_STOCK_UPDATE, map[string]interface{}{
+	data := map[string]interface{}{
 		"product_id": product.ID,
 		"user_id":    input.UserId,
 		"quantity":   input.Quantity,
 		"order_id":   res.ID,
-	}, 1)
+		"amount":     order.Amount,
+	}
+
+	ayam := s.Kafka.SendMessage(constant.TOPIC_NEW_ORDER, data, 1)
 	if ayam != nil {
-		fmt.Println(ayam.Error())
+		return nil, dto.ResponseError{
+			Error: ayam,
+		}
 	}
 
 	return res, err
@@ -68,5 +72,18 @@ func (s *orderService) GetById(orderId uint64) (*entities.Order, dto.ResponseErr
 func (s *orderService) GetList() ([]*entities.Order, dto.ResponseError) {
 
 	res, err := s.OrderRepository.GetList()
+	return res, err
+}
+
+func (s *orderService) CreateOrderReply(input dto.CreateOrderReplyRequest) (bool, dto.ResponseError) {
+
+	res, err := s.OrderRepository.CreateOrderReply(entities.TopicOrderReply{
+		OrderId:     input.OrderId,
+		ServiceName: input.ServiceName,
+	})
+
+	if res {
+		s.OrderRepository.UpdateState(input.OrderId, constant.ORDER_STATE_SUCCESS)
+	}
 	return res, err
 }

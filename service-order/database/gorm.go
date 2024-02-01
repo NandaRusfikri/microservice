@@ -30,6 +30,7 @@ func SetupDatabase() *gorm.DB {
 
 	err = db.AutoMigrate(
 		&entity.Order{},
+		&entity.TopicOrderReply{},
 	)
 
 	if err != nil {

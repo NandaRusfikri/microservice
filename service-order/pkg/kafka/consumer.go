@@ -93,7 +93,10 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 				return nil
 			}
 
-			constant.ChanTopicProduct <- string(message.Value)
+			if message.Topic == constant.TOPIC_ORDER_REPLY {
+				constant.ChanTopicOrderReply <- string(message.Value)
+			}
+
 			log.Printf("Message claimed: value = %s, timestamp = %v, topic = %s", string(message.Value), message.Timestamp, message.Topic)
 			session.MarkMessage(message, "")
 		// Should return when `session.Context()` is done.
