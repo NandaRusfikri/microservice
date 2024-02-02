@@ -28,10 +28,12 @@ func init() {
 
 	dto.CfgApp.RestPort = *portREST
 	dto.CfgApp.GRPCPort = *portGRPC
+
+	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "GRPC")
+	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.RestPort, "REST")
 }
 
 func NewGRPC() error {
-	pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "GRPC")
 
 	kafkaProducer := kafka.NewKafkaProducer()
 
@@ -79,7 +81,7 @@ func NewRestAPI() {
 	//orderCtrl.NewOrderControllerRestAPI(orderService, httpServer)
 	//defaultCtrl.InitDefaultController(httpServer)
 	//
-	//pkg.NewConsul(dto.CfgApp.ServiceName, dto.CfgApp.GRPCPort, "REST")
+
 	//log.Println("Starting REST server at", dto.CfgApp.RestPort)
 	//err := httpServer.Run(fmt.Sprintf(`:%v`, dto.CfgApp.RestPort))
 	//if err != nil {
